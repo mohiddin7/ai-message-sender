@@ -139,4 +139,41 @@ test("clearAlarm removes the alarm", async () => {
   await clearAlarm("q_x");
   const all = await listAlarms();
   assert.equal(all.length, 0);
+});import { nextOccurrenceFor, expandAll } from "../src/background/recurring-expander.js";
+
+test("nextOccurrenceFor daily picks later today if before time, tomorrow if after", () => {
+  const rule = { enabled: true, schedule: { kind: "daily", timeOfDay: "09:00" } };
+  const before9  = new Date("2026-08-25T08:00:00").getTime();
+  const after9   = new Date("2026-08-25T10:00:00").getTime();
+  const d1 = new Date(nextOccurrenceFor(rule, before9)); assert.equal(d1.getHours(), 9);
+  const d2 = new Date(nextOccurrenceFor(rule, after9));  assert.equal(d2.getHours(), 9); assert.equal(d2.getDate(), 26);
+});
+
+test("nextOccurrenceFor weekly skips weekends", () => {
+  // 2026-08-29 is a Saturday
+  const sat = new Date("2026-08-29T08:00:00").getTime();
+  const rule = { enabled: true, schedule: { kind: "weekly", daysOfWeek: [1,2,3,4,5], timeOfDay: "09:00" } };
+  const r = new Date(nextOccurrenceFor(rule, sat));
+  assert.equal(r.getDay(), 1, "expected Monday");
+});
+
+test("expandAll adds up to 8 occurrences within 24h and is idempotent within a day", async () => {
+  memStore.clear(); alarmStore.clear();
+  const rule = { id: "r_aaa", platform: "claude", tabId: 1, conversationUrl: "u", text: "hi",
+    schedule: { kind: "daily", timeOfDay: "00:00" }, nextOccurrence: Date.now() + 1000, enabled: true, createdAt: Date.now() };
+  await queueStore.addRecurring(rule);
+  const r1 = await expandAll();
+  assert.ok(r1.expanded >= 1, "at least one occurrence expanded");
+  const r2 = await expandAll();
+  assert.equal(r2.skipped, true, "second call same day is skipped");
+});
+
+test("expandAll caps at 8 occurrences", async () => {
+  memStore.clear(); alarmStore.clear();
+  // A rule whose nextOccurrence is already past, forcing 8 future steps within 24h
+  const rule = { id: "r_bbb", platform: "claude", tabId: 1, conversationUrl: "u", text: "x",
+    schedule: { kind: "daily", timeOfDay: "00:00" }, nextOccurrence: Date.now() - 86400_000, enabled: true, createdAt: Date.now() };
+  await queueStore.addRecurring(rule);
+  const r = await expandAll();
+  assert.ok(r.expanded <= 8);
 });
