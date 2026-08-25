@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AI Auto-Sender — Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1>Options</h1>
+
+  <section id="sync-banner" hidden>
+    <p>Selectors synced from your account.</p>
+    <button id="wipe-sync">Wipe synced selectors</button>
+  </section>
+
+  <section>
+    <h2>Recurring rules</h2>
+    <div id="recurring-list"></div>
+  </section>
+
+  <section>
+    <h2>History (last 30 days)</h2>
+    <div id="history"></div>
+  </section>
+
+  <section>
+    <h2>Maintenance</h2>
+    <button id="dryrun-all">Run dry-run on all pending</button>
+    <button id="clear-all" class="danger">Clear all data</button>
+  </section>
+
+  <footer>
+    <a id="coffee" href="#">Support this project</a>
+  </footer>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
