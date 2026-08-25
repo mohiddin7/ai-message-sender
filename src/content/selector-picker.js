@@ -1,5 +1,3 @@
-import { log } from "../lib/log.js";
-
 function cleanSelector(el) {
   if (el.id) return `#${el.id}`;
   const aria = el.getAttribute("aria-label");

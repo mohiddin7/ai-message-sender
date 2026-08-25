@@ -1,5 +1,4 @@
 import { getAdapter } from "./adapters/index.js";
-import { log } from "../lib/log.js";
 
 const STEPS = ["focusTab", "findInput", "writeText", "findButton", "clickSend"];
 
