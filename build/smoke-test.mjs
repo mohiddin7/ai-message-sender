@@ -211,3 +211,24 @@ test("syncStore.wipeSyncSelectors clears both", async () => {
   assert.equal(await syncStore.getSyncSelectors(), null);
   assert.deepEqual(await queueStore.getSelectors(), {});
 });
+
+// New tests for adapters
+import { getAdapter } from "../src/content/adapters/index.js";
+
+test("each adapter exposes defaultSelectors, isResponseComplete, detectReset", () => {
+  for (const p of [PLATFORMS.CLAUDE, PLATFORMS.GPT, PLATFORMS.GEMINI]) {
+    const a = getAdapter(p);
+    assert.equal(typeof a.defaultSelectors.input, "string");
+    assert.equal(typeof a.defaultSelectors.sendButton, "string");
+    assert.equal(typeof a.isResponseComplete, "function");
+    assert.equal(typeof a.detectReset, "function");
+  }
+});
+
+test("detectReset returns null when no banner text matches", () => {
+  for (const p of [PLATFORMS.CLAUDE, PLATFORMS.GPT, PLATFORMS.GEMINI]) {
+    const a = getAdapter(p);
+    const fakeRoot = { body: { innerText: "nothing here" } };
+    assert.equal(a.detectReset(fakeRoot), null);
+  }
+});
