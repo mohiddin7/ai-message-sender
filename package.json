@@ -1,0 +1,20 @@
+{
+  "name": "ai-auto-sender",
+  "version": "5.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build/esbuild.config.mjs",
+    "zip":  "node build/zip.mjs",
+    "lint": "eslint src build",
+    "test": "node --test build/smoke-test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "eslint": "^9.10.0",
+    "eslint-plugin-chrome": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
