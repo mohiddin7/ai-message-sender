@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>AI Auto-Sender</h1>
+    <span id="badge" class="badge">…</span>
+  </header>
+
+  <section id="controls" hidden>
+    <div class="modes" role="tablist">
+      <button data-mode="delay"    class="mode active" role="tab">Delay</button>
+      <button data-mode="absolute" class="mode"        role="tab">At time</button>
+      <button data-mode="reset"    class="mode"        role="tab">Reset</button>
+      <button data-mode="chain"    class="mode"        role="tab">Chain</button>
+    </div>
+    <div id="time-controls"></div>
+
+    <div class="picker-row">
+      <button id="pickInput"  class="picker">🎯 Teach input</button>
+      <button id="pickButton" class="picker">🎯 Teach send</button>
+    </div>
+
+    <textarea id="msg" placeholder="Type your prompt…"></textarea>
+    <button id="saveBtn" class="primary">Queue</button>
+
+    <details class="recurring">
+      <summary>↻ Make this recurring</summary>
+      <div id="recurring-form"></div>
+    </details>
+  </section>
+
+  <section id="queue-section">
+    <h2>Queue</h2>
+    <div id="queue-list"></div>
+  </section>
+
+  <footer>
+    <a id="open-welcome" href="#">Welcome</a>
+    <a id="open-options" href="#">Options</a>
+    <a id="open-coffee"  href="#">Support</a>
+  </footer>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
