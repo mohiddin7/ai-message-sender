@@ -10,14 +10,12 @@ export function isResponseComplete(root = document) {
 
 export function detectReset(root = document) {
   const text = root.body?.innerText || "";
-  const m = text.match(/resets?\s+(?:in\s+)?(\d+):(\d+)\s*(am|pm)?/i) || text.match(/(\d+)\s*(min|minute|minutes|hour|hours|h|m)\s*left/i);
+  // Match "resets in 2 hours", "12 minutes left", or "resets in 1:30" (HH:MM).
+  const hhmm = text.match(/resets?\s+(?:in\s+)?(\d+):(\d+)/i);
+  if (hhmm) return Date.now() + parseInt(hhmm[1], 10) * 3600_000 + parseInt(hhmm[2], 10) * 60_000;
+  const m = text.match(/(\d+)\s*(hours?|h|minutes?|m)\s*(?:left|until)/i);
   if (!m) return null;
-  if (m[2] && (m[2].toLowerCase().startsWith("h"))) return Date.now() + parseInt(m[1], 10) * 3600_000;
-  if (m[2]) return Date.now() + parseInt(m[1], 10) * 60_000;
-  if (m[2] === undefined) {
-    // HH:MM form
-    const h = parseInt(m[1], 10), min = parseInt(m[2], 10);
-    return Date.now() + (h * 3600_000 + min * 60_000);
-  }
-  return null;
+  const n = parseInt(m[1], 10);
+  const ms = m[2].toLowerCase().startsWith("h") ? n * 3600_000 : n * 60_000;
+  return Date.now() + ms;
 }

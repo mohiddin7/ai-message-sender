@@ -232,3 +232,17 @@ test("detectReset returns null when no banner text matches", () => {
     assert.equal(a.detectReset(fakeRoot), null);
   }
 });
+
+test("detectReset parses HH:MM form on chatgpt", () => {
+  const a = getAdapter(PLATFORMS.GPT);
+  const before = Date.now();
+  const t = a.detectReset({ body: { innerText: "Resets in 1:30" } });
+  assert.ok(t >= before + (90 * 60_000) - 5_000 && t <= before + (90 * 60_000) + 5_000);
+});
+
+test("detectReset parses hour-suffix form on chatgpt", () => {
+  const a = getAdapter(PLATFORMS.GPT);
+  const before = Date.now();
+  const t = a.detectReset({ body: { innerText: "2 hours left" } });
+  assert.ok(t >= before + (2 * 3600_000) - 5_000 && t <= before + (2 * 3600_000) + 5_000);
+});
