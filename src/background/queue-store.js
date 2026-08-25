@@ -75,11 +75,17 @@ export const queueStore = {
     return rec.find(x => x.id === id) || null;
   },
 
-  // selectors + settings (read/write; sync mirroring is wired in a later task)
+  // selectors + settings (read/write; sync mirroring is wired in sync-store.js)
   async getSelectors() { return (await getKey(KEYS.SELECTORS)) || {}; },
-  async setSelectors(s) { await setKey(KEYS.SELECTORS, s); },
+  async setSelectors(s) {
+    await setKey(KEYS.SELECTORS, s);
+    // Mirror to sync is handled by syncStore when called from background
+  },
   async getSettings() { return (await getKey(KEYS.SETTINGS)) || { onboarded: false, sendNotifications: true, soundOnFire: false }; },
-  async setSettings(s) { await setKey(KEYS.SETTINGS, s); },
+  async setSettings(s) {
+    await setKey(KEYS.SETTINGS, s);
+    // Mirror to sync is handled by syncStore when called from background
+  },
 
   // history
   async appendHistory(item) {

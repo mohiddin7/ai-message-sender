@@ -3,9 +3,12 @@ import assert from "node:assert/strict";
 import { id } from "../src/lib/id.js";
 import { detectPlatformFromUrl, PLATFORMS } from "../src/lib/platform.js";
 import { MESSAGE_TYPES } from "../src/lib/messages.js";
+import { syncStore } from "../src/background/sync-store.js";
 
 // In-memory chrome.storage.local shim
 const memStore = new Map();
+// In-memory chrome.storage.sync shim
+const memSync = new Map();
 globalThis.chrome = {
   storage: {
     local: {
@@ -22,6 +25,11 @@ globalThis.chrome = {
       },
       set(obj) { return new Promise(r => { for (const [k, v] of Object.entries(obj)) memStore.set(k, v); r(); }); },
       remove(keys) { return new Promise(r => { for (const k of (Array.isArray(keys) ? keys : [keys])) memStore.delete(k); r(); }); }
+    },
+    sync: {
+      get(keys) { return Promise.resolve(typeof keys === "string" ? { [keys]: memSync.get(keys) } : Object.fromEntries((Array.isArray(keys) ? keys : [keys]).map(k => [k, memSync.get(k)]))); },
+      set(obj)  { for (const [k, v] of Object.entries(obj)) memSync.set(k, v); return Promise.resolve(); },
+      remove(keys) { for (const k of (Array.isArray(keys) ? keys : [keys])) memSync.delete(k); return Promise.resolve(); }
     }
   }
 };
@@ -176,4 +184,30 @@ test("expandAll caps at 8 occurrences", async () => {
   await queueStore.addRecurring(rule);
   const r = await expandAll();
   assert.ok(r.expanded <= 8);
+});
+
+test("syncStore.setSelectors mirrors to both storages", async () => {
+  memStore.clear(); memSync.clear();
+  await syncStore.setSelectors({ claude: { input: "div", sendButton: "button" } });
+  assert.deepEqual(await syncStore.getSyncSelectors(), { claude: { input: "div", sendButton: "button" } });
+  assert.deepEqual(await queueStore.getSelectors(),       { claude: { input: "div", sendButton: "button" } });
+});
+
+test("syncStore.hydrateFromSync populates local on first run when local is empty", async () => {
+  memStore.clear(); memSync.clear();
+  memSync.set("selectors", { gpt: { input: "textarea", sendButton: "button[type=submit]" } });
+  const r = await syncStore.hydrateFromSync();
+  assert.equal(r.hydrated, "selectors");
+  const local = await queueStore.getSelectors();
+  assert.equal(local.gpt.input, "textarea");
+  // second call should not surface a banner again
+  const r2 = await syncStore.hydrateFromSync();
+  assert.equal(r2.hydrated, null);
+});
+
+test("syncStore.wipeSyncSelectors clears both", async () => {
+  await syncStore.setSelectors({ claude: { input: "x", sendButton: "y" } });
+  await syncStore.wipeSyncSelectors();
+  assert.equal(await syncStore.getSyncSelectors(), null);
+  assert.deepEqual(await queueStore.getSelectors(), {});
 });
