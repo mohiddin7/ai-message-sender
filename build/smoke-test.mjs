@@ -26,6 +26,19 @@ globalThis.chrome = {
   }
 };
 
+// Inject fake chrome.alarms before importing scheduler
+const alarmStore = new Map();
+globalThis.chrome.alarms = {
+  create(name, opts) { alarmStore.set(name, opts); },
+  clear(name)         { alarmStore.delete(name); return Promise.resolve(true); },
+  getAll(cb)          { cb([...alarmStore.entries()].map(([name, opts]) => ({ name, ...opts }))); },
+  onAlarm: { addListener() {} }
+};
+
+import { scheduleAlarm, listAlarms, clearAlarm } from "../src/background/scheduler.js";
+
+// Original 4 tests
+
 // Original 4 tests
 test("id returns a prefixed string of the right shape", () => {
   const x = id("q");
@@ -110,4 +123,20 @@ test("queueStore.migrate is idempotent", async () => {
   await queueStore.migrate();
   const { migrated } = await queueStore.migrate();
   assert.equal(migrated, 0);
+});
+
+// New tests for scheduler
+test("scheduleAlarm stores an alarm with the right name and when", async () => {
+  alarmStore.clear();
+  await scheduleAlarm({ id: "q_x", scheduledAt: 12345 });
+  const all = await listAlarms();
+  assert.equal(all.length, 1);
+  assert.equal(all[0].name, "alarm_q_x");
+  assert.equal(all[0].when, 12345);
+});
+
+test("clearAlarm removes the alarm", async () => {
+  await clearAlarm("q_x");
+  const all = await listAlarms();
+  assert.equal(all.length, 0);
 });
