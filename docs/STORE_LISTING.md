@@ -1,7 +1,7 @@
 # Chrome Web Store Listing — AI Auto-Sender
 
 ## Name
-AI Auto-Sender
+Prompt or Message Scheduler for Claude, ChatGPT, and Gemini or any messaging app.
 
 ## Short description (132 char max)
 Schedule prompts to Claude, ChatGPT, and Gemini. Multi-queue, multi-tab, dry-run, recurring.
