@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "AI Auto-Sender with Queue Manager",
+  "version": "4.0",
+  "description": "Schedules messages across AI platforms with an interactive queue dashboard panel.",
+  "permissions": [
+    "alarms",
+    "storage",
+    "tabs",
+    "windows",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.claude.ai/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.claude.ai/*",
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}
