@@ -44,7 +44,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 
 document.getElementById("open-welcome").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("src/welcome/welcome.html") }); });
 document.getElementById("open-options").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
-document.getElementById("open-coffee") .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://buy.stripe.com/warmhop-donate" /* TODO replace at publish time */ }); });
+document.getElementById("open-coffee") .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
 
 mountRecurringForm(document.getElementById("recurring-form"), () => ({ tabId: currentTab?.id, conversationUrl: currentTab?.url, text: document.getElementById("msg").value, platform: currentPlatform }));
 

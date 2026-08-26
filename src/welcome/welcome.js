@@ -27,5 +27,5 @@ document.addEventListener("DOMContentLoaded", () => {
     await chrome.storage.local.set({ settings: { ...((await chrome.storage.local.get("settings")).settings || {}), onboarded: true } });
     window.close();
   });
-  document.getElementById("coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://buy.stripe.com/warmhop-donate" }); });
+  document.getElementById("coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
 });

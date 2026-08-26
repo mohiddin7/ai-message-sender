@@ -56,7 +56,7 @@ document.getElementById("wipe-sync").addEventListener("click", async () => {
   location.reload();
 });
 
-document.getElementById("coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://buy.stripe.com/warmhop-donate" }); });
+document.getElementById("coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
 
 (async () => {
   const hydrated = await syncStore.hydrateFromSync();
