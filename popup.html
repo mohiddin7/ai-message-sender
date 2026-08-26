@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 340px; font-family: sans-serif; padding: 12px; margin: 0; background: #fafafa; }
+    h3 { margin-top: 0; color: #222; border-bottom: 2px solid #eaeaea; padding-bottom: 6px; margin-bottom: 10px; }
+    .platform-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 10px; background: #e0e0e0; color: #555; }
+    .claude-bg { background: #ecdcd3; color: #d97706; }
+    .gpt-bg { background: #d1fae5; color: #059669; }
+    .gemini-bg { background: #dbeafe; color: #2563eb; }
+    textarea { width: 100%; height: 65px; margin-bottom: 8px; resize: none; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; padding: 6px; }
+    input { width: 100%; margin-bottom: 10px; padding: 6px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 8px; margin-bottom: 6px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; }
+    .primary-btn { background: #2563eb; color: white; }
+    .primary-btn:hover { background: #1d4ed8; }
+    .picker-btn { background: #4b5563; color: white; font-size: 11px; }
+    .picker-btn:hover { background: #374151; }
+    .picker-container { display: flex; gap: 6px; margin-bottom: 10px; }
+    .error-msg { color: #dc2626; font-size: 12px; font-weight: bold; }
+    
+    /* Queue Dashboard Styling */
+    .queue-section { margin-top: 14px; border-top: 2px solid #eaeaea; padding-top: 10px; }
+    .queue-title { font-size: 13px; font-weight: bold; color: #444; margin-bottom: 8px; }
+    .queue-item { background: white; border: 1px solid #e3e3e3; padding: 8px; border-radius: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .queue-details { flex-grow: 1; margin-right: 8px; overflow: hidden; }
+    .queue-meta { font-size: 11px; color: #666; display: flex; gap: 6px; align-items: center; margin-top: 2px; }
+    .queue-text { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #222; }
+    .p-tag { font-size: 9px; text-transform: uppercase; padding: 1px 4px; border-radius: 3px; font-weight: bold; }
+    .delete-btn { background: #fee2e2; color: #dc2626; padding: 4px 8px; font-size: 11px; border-radius: 3px; width: auto; margin-bottom: 0; }
+    .delete-btn:hover { background: #fca5a5; }
+    .empty-queue { font-size: 11px; color: #888; text-align: center; font-style: italic; padding: 6px 0; }
+  </style>
+</head>
+<body>
+  <h3>AI Multi-Scheduler</h3>
+  <div id="platformBadge" class="platform-badge">Detecting Platform...</div>
+  
+  <div id="mainControls" style="display:none;">
+    <div class="picker-container">
+      <button id="pickInput" class="picker-btn">🎯 Teach Input Box</button>
+      <button id="pickButton" class="picker-btn">🎯 Teach Send Arrow</button>
+    </div>
+
+    <textarea id="msg" placeholder="Type your scheduled prompt here..."></textarea>
+    <label style="font-size: 11px; color: #555; font-weight: bold;">Execution Time:</label>
+    <input type="datetime-local" id="execTime">
+    
+    <button id="saveBtn" class="primary-btn">Queue This Chat Slot</button>
+  </div>
+  <div id="errorZone" class="error-msg"></div>
+
+  <!-- Live Queue Dashboard View -->
+  <div class="queue-section">
+    <div class="queue-title">⏳ Active Schedule Queue</div>
+    <div id="queueList"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
