@@ -137,4 +137,4 @@ See [privacy-policy.html](privacy-policy.html) for the full statement.
 
 ## Support
 
-If the extension helps you, you can support its development via the developer's Stripe link in the popup or on the welcome page. If it breaks or you want a new platform supported, open an issue on this repository.
+If the extension helps you, you can support its development via [Donate](https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00) in the popup or on the welcome page. If it breaks or you want a new platform supported, open an issue on this repository.
