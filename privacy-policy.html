@@ -8,10 +8,17 @@
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-logo" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M20.5 3.5 3 11l9 10.5-2-9Z"/>
+      <path d="M20.5 3.5 10 12.5l2 9Z" fill-opacity="0.55"/>
+    </symbol>
     <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
-    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></symbol>
+    <symbol id="i-wand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 12-12M14 6l4 4"/><path d="M16 4v2M20 4v2M18 3v3M4 14v2M8 14v2M6 13v3"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2 20h20L12 4Z"/><path d="M12 10v4M12 17.5v.5"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17v11h-17z"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/><path d="M15 4h5v5"/><path d="M20 4 11 13"/></symbol>
     <symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
   </svg>
 
@@ -20,7 +27,7 @@
       <div class="page-header-inner">
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">
-            <svg class="i i-lg"><use href="#i-spark"/></svg>
+            <svg class="i i-lg"><use href="#i-logo"/></svg>
           </div>
           <div class="brand-text">
             <div class="brand-name">AI Auto-Sender</div>
@@ -33,7 +40,7 @@
     <main class="page-main">
       <section class="page-hero">
         <h1 class="page-title">Privacy policy.</h1>
-        <p class="page-subtitle">Last updated 2026-08-25. Short version: nothing leaves your browser unless you turn on cross-device sync.</p>
+        <p class="page-subtitle">Last updated 2026-08-27. Short version: nothing leaves your browser unless you turn on cross-device sync. Works on any webpage with a text input and a send button — not limited to Claude, ChatGPT, or Gemini.</p>
       </section>
 
       <section class="card">
@@ -54,7 +61,7 @@
         </div>
       </section>
 
-      <section class="card">
+      <section class="card is-negative">
         <div class="card-head">
           <div class="card-title">
             <svg class="i"><use href="#i-x"/></svg>
@@ -72,10 +79,27 @@
         </div>
       </section>
 
+      <section class="card is-warn">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-alert"/></svg>
+            <h2>Limitations</h2>
+          </div>
+          <p class="card-sub">Scheduled sends depend on your browser, not a server — a few real constraints follow from that.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>The tab you scheduled a message in must stay open. Closing it cancels that send — you'll see it marked "tab lost" in History.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Chrome itself must be running. If you fully quit Chrome, queued sends fire late once you reopen it, not retroactively at the original time.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Your device just needs to be awake — a locked screen is fine, sleep or hibernate is not.</span></li>
+          </ul>
+        </div>
+      </section>
+
       <section class="card">
         <div class="card-head">
           <div class="card-title">
-            <svg class="i"><use href="#i-spark"/></svg>
+            <svg class="i"><use href="#i-wand"/></svg>
             <h2>What you can do</h2>
           </div>
           <p class="card-sub">Open the Options page to wipe all stored data, clear synced selectors, and reset the tutorial state.</p>
@@ -90,7 +114,19 @@
           <div class="card-title">
             <h2>Contact</h2>
           </div>
-          <p class="card-sub">Open an issue on the project's GitHub repository.</p>
+          <p class="card-sub">Found a bug, or something not working right? Both routes below reach the same person.</p>
+        </div>
+        <div class="card-body">
+          <div class="contact-links">
+            <a class="contact-link" href="https://github.com/mohiddin7/ai-message-sender/issues" target="_blank" rel="noopener">
+              <svg class="i"><use href="#i-external"/></svg>
+              <span>Report an issue on GitHub</span>
+            </a>
+            <a class="contact-link" href="mailto:support@warmhop.com">
+              <svg class="i"><use href="#i-mail"/></svg>
+              <span>support@warmhop.com</span>
+            </a>
+          </div>
         </div>
       </section>
     </main>

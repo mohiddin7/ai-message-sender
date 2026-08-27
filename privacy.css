@@ -157,7 +157,14 @@ body {
   margin-top: 2px;
   stroke-width: 2;
 }
-.card:nth-of-type(2) .list li .i { color: var(--err); }
+/* Explicit modifier classes, not :nth-of-type — .page-hero is also a
+   <section>, so counting sibling <section> position (which is what
+   :nth-of-type does, regardless of class) put every card's real index
+   off by one and colored the wrong card's icons. */
+.card.is-negative .list li .i { color: var(--err); }
+.card.is-warn .list li .i { color: var(--warn-fg); }
+.card.is-warn .card-title .i { color: var(--warn-fg); }
+.card.is-warn .card-head { background: var(--warn-soft); }
 
 .prose {
   font-size: var(--text-sm);
@@ -170,6 +177,32 @@ body {
   font-style: normal;
   font-weight: var(--weight-semibold);
 }
+
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--fg);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.contact-link:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-soft);
+}
+.contact-link .i { color: var(--brand); }
 
 .page-footer {
   display: flex;
