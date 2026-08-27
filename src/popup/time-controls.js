@@ -239,6 +239,7 @@ export function mountTimeControls(root, { onChange }) {
   return {
     render,
     setMode,
+    setResetSuggestion,
     get value() { return { mode, value }; }
   };
 }
@@ -274,4 +275,55 @@ function nextSlot(ms) {
 
 function defaultFutureDate() {
   return new Date(Date.now() + 3600_000);
+}
+
+let _suggestionEl = null;
+
+function clearSuggestion() {
+  if (_suggestionEl) { _suggestionEl.remove(); _suggestionEl = null; }
+}
+
+function setResetSuggestion(ts) {
+  clearSuggestion();
+  if (!ts || ts <= Date.now()) return;
+  const mins = Math.round((ts - Date.now()) / 60_000);
+  if (mins < 1) return;  // ignore sub-minute suggestions
+
+  const card = document.createElement("div");
+  card.className = "reset-suggestion";
+  card.innerHTML = `
+    <svg class="i"><use href="#i-clock"/></svg>
+    <div class="reset-suggestion-body">
+      <div class="reset-suggestion-title">Limit resets in ${humanizeMins(mins)}</div>
+      <div class="reset-suggestion-sub">${new Date(ts).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" })}</div>
+    </div>
+    <button class="btn btn-primary btn-sm reset-suggestion-use" type="button">Use</button>
+    <button class="btn-icon reset-suggestion-dismiss" type="button" aria-label="Dismiss" title="Dismiss">
+      <svg class="i"><use href="#i-x"/></svg>
+    </button>
+  `;
+  card.querySelector(".reset-suggestion-use").addEventListener("click", () => {
+    // Find the matching delay chip (within 60s) or fall back to absolute mode
+    const target = DELAY_CHIPS.find(c => typeof c.ms === "number" && Math.abs(c.ms - mins * 60_000) < 60_000);
+    if (target) {
+      setMode("delay");
+      value = target.ms;
+    } else {
+      setMode("absolute");
+      value = ts;
+    }
+    onChange({ mode, value });
+    clearSuggestion();
+    render();
+  });
+  card.querySelector(".reset-suggestion-dismiss").addEventListener("click", clearSuggestion);
+  root.prepend(card);
+  _suggestionEl = card;
+}
+
+function humanizeMins(mins) {
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
