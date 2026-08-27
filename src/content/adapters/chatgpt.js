@@ -4,12 +4,11 @@ export const defaultSelectors = {
 };
 
 export function isResponseStreaming(root = document) {
-  // ChatGPT shows a Stop button while streaming.
-  if (root.querySelector("button[aria-label*='Stop' i], button[data-testid='stop-button']")) return true;
-  // Some builds use a send button that's disabled while streaming.
-  const send = root.querySelector("button[data-testid='send-button']");
-  if (send && send.disabled) return true;
-  return false;
+  // ChatGPT shows a Stop button while streaming. The send button can be
+  // disabled even on an empty idle page (before the user types anything),
+  // so it is NOT a reliable streaming signal on its own — only the Stop
+  // button is.
+  return !!root.querySelector("button[aria-label*='Stop' i], button[data-testid='stop-button']");
 }
 
 export function isResponseComplete(root = document) {
