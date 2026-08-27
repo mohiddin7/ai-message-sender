@@ -313,7 +313,7 @@ test("getAdapter falls back to generic for unknown platforms", () => {
   assert.equal(typeof a.defaultSelectors.input, "string");
   assert.equal(typeof a.defaultSelectors.sendButton, "string");
   assert.equal(a.isResponseComplete(), true);
-  assert.equal(a.detectReset(), null);
+  assert.equal(a.detectReset({ body: { innerText: "nothing here" } }), null);
 });
 
 test("detectReset returns null when no banner text matches", () => {
@@ -336,4 +336,48 @@ test("detectReset parses hour-suffix form on chatgpt", () => {
   const before = Date.now();
   const t = a.detectReset({ body: { innerText: "2 hours left" } });
   assert.ok(t >= before + (2 * 3600_000) - 5_000 && t <= before + (2 * 3600_000) + 5_000);
+});
+
+test("detectReset parses claude's real 'until H:MM AM/PM' banner text", () => {
+  // Claude's actual free-tier banner reads "You are out of free messages
+  // until 8:40 PM" — a wall-clock target, not a countdown duration. The
+  // old regex only matched "resets in N minutes/hours" and silently
+  // returned null on this real text.
+  const a = getAdapter("claude.ai");
+  const target = new Date(Date.now() + 2 * 3600_000);
+  target.setSeconds(0, 0);
+  const h = target.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const mm = String(target.getMinutes()).padStart(2, "0");
+  const text = `You are out of free messages until ${h12}:${mm} ${ampm}`;
+  const t = a.detectReset({ body: { innerText: text } });
+  assert.ok(Math.abs(t - target.getTime()) < 5_000, `expected ~${target.getTime()}, got ${t}`);
+});
+
+test("detectReset rolls an already-passed clock time to tomorrow", () => {
+  const a = getAdapter("claude.ai");
+  const past = new Date(Date.now() - 3600_000);
+  const h = past.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const mm = String(past.getMinutes()).padStart(2, "0");
+  const text = `until ${h12}:${mm} ${ampm}`;
+  const t = a.detectReset({ body: { innerText: text } });
+  const expected = new Date(past);
+  expected.setDate(expected.getDate() + 1);
+  expected.setSeconds(0, 0);
+  assert.ok(Math.abs(t - expected.getTime()) < 5_000, `expected ~${expected.getTime()}, got ${t}`);
+});
+
+test("detectReset 'until H:MM' fallback also works on the generic adapter", () => {
+  const a = getAdapter("some-random-site.example");
+  const target = new Date(Date.now() + 90 * 60_000);
+  target.setSeconds(0, 0);
+  const h = target.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const mm = String(target.getMinutes()).padStart(2, "0");
+  const t = a.detectReset({ body: { innerText: `Try again until ${h12}:${mm} ${ampm}` } });
+  assert.ok(Math.abs(t - target.getTime()) < 5_000);
 });

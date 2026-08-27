@@ -1,3 +1,5 @@
+import { detectUntilClockTime } from "./shared-time-parse.js";
+
 export const defaultSelectors = {
   input: "div[contenteditable='true']",
   sendButton: "button[aria-label*='Send' i]"
@@ -19,9 +21,15 @@ export function isResponseComplete(root = document) {
 export function detectReset(root = document) {
   const text = root.body?.innerText || "";
   const m = text.match(/resets?\s+in\s+(\d+)\s*(h|hour|hours|m|min|minute|minutes)?/i);
-  if (!m) return null;
-  const n = parseInt(m[1], 10);
-  const unit = (m[2] || "minutes").toLowerCase();
-  const ms = (unit.startsWith("h") ? n * 3600_000 : n * 60_000);
-  return Date.now() + ms;
+  if (m) {
+    const n = parseInt(m[1], 10);
+    const unit = (m[2] || "minutes").toLowerCase();
+    const ms = (unit.startsWith("h") ? n * 3600_000 : n * 60_000);
+    return Date.now() + ms;
+  }
+  // Claude's actual free-tier banner reads "You are out of free messages
+  // until 8:40 PM" — a wall-clock target, not a countdown duration. The
+  // pattern above never matches that text at all, which is why reset
+  // detection silently failed on Claude even with a limit banner visible.
+  return detectUntilClockTime(text);
 }
