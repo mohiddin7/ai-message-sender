@@ -69,7 +69,7 @@ export async function startTutorial({ onFinish, force = false } = {}) {
     const { settings = {} } = await chrome.storage.local.get(STORAGE_KEY);
     if (settings[SEEN_FLAG]) return;
   }
-  const overlay = mountOverlay();
+  const overlay = mountOverlay(onFinish);
   document.body.appendChild(overlay.root);
   // Wait one frame for layout, then position the first step
   await new Promise(r => requestAnimationFrame(r));
@@ -77,7 +77,7 @@ export async function startTutorial({ onFinish, force = false } = {}) {
   return overlay;
 }
 
-function mountOverlay() {
+function mountOverlay(onFinish) {
   const root = document.createElement("div");
   root.className = "tutorial-overlay";
   root.setAttribute("role", "dialog");
