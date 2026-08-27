@@ -63,10 +63,22 @@ export function wireBackground() {
     if (target.kind !== "ok") return { status: "tab-lost" };
 
     if (item.mode === "chain") {
-      // Arm the watcher; this branch fires when CHAIN_READY arrives from content.
-      const tabId = target.tab.id;
-      await chrome.tabs.sendMessage(tabId, { action: MESSAGE_TYPES.CHAIN_READY, platform: item.platform, itemId: item.id });
-      return { status: "pending" };
+      // Chain mode: CHAIN_READY from content scheduled a 500ms alarm (see the
+      // CHAIN_READY case below). When that alarm fires, perform the real send
+      // — the watcher is already done, do not re-arm it.
+      const selectors = (await syncStore.getSelectors())[item.platform];
+      const msg = { action: MESSAGE_TYPES.INJECT_AND_SEND, text: item.text, platform: item.platform, selectors };
+      const focused = await focusTargetTab(item.tabId);
+      const result = await sendViaContentScript(item.tabId, msg);
+      result.steps = [focused, ...(result.steps || [])];
+      if (!focused.ok) result.ok = false;
+      const ok = result.steps.every(s => s.ok);
+      if (ok) {
+        await notice(item.tabId, "sent", `Message sent to ${item.platform}.`);
+        return { status: "sent" };
+      }
+      const failedStep = result.steps.find(s => !s.ok);
+      return { status: "failed", lastError: `${failedStep?.step}: ${failedStep?.reason}` };
     }
     const selectors = (await syncStore.getSelectors())[item.platform];
     const msg = { action: MESSAGE_TYPES.INJECT_AND_SEND, text: item.text, platform: item.platform, selectors };
