@@ -70,6 +70,10 @@ document.getElementById("open-coffee").addEventListener("click", e => {
   e.preventDefault();
   chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" });
 });
+document.getElementById("open-help").addEventListener("click", e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: "https://github.com/mohiddin7/ai-message-sender/issues" });
+});
 
 mountRecurringForm(document.getElementById("recurring-form"), () => ({ tabId: currentTab?.id, conversationUrl: currentTab?.url, text: document.getElementById("msg").value, platform: currentPlatform }));
 

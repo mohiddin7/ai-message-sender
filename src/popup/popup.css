@@ -60,6 +60,12 @@ main::-webkit-scrollbar {
   gap: var(--space-2);
   min-width: 0;
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
 .brand-mark {
   width: 32px;
   height: 32px;
