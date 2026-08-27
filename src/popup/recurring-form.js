@@ -2,21 +2,26 @@ import { id as makeId } from "../lib/id.js";
 
 export function mountRecurringForm(root, getFormContext) {
   root.innerHTML = `
-    <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+    <div class="row">
       <label><input type="radio" name="freq" value="daily" checked> Daily</label>
       <label><input type="radio" name="freq" value="weekly"> Weekly</label>
+      <label for="r-time">at</label>
       <input type="time" id="r-time" value="09:00">
     </div>
-    <div id="r-week" hidden>
-      ${["S","M","T","W","T","F","S"].map((d, i) => `<label style="margin-right:4px;"><input type="checkbox" data-day="${i}"> ${d}</label>`).join("")}
+    <div id="r-week" class="days" hidden>
+      ${["S","M","T","W","T","F","S"].map((d, i) => `<label><input type="checkbox" data-day="${i}">${d}</label>`).join("")}
     </div>
-    <button id="r-save" class="primary" style="margin-top:6px;">Save recurring</button>
+    <button id="r-save" class="btn btn-primary" type="button">Save recurring</button>
+    <div class="hint">Recurring rules fire automatically. Cancel the queue item to stop the next one.</div>
   `;
   const week = root.querySelector("#r-week");
   root.querySelectorAll("input[name=freq]").forEach(r => r.addEventListener("change", () => { week.hidden = root.querySelector("input[name=freq]:checked").value !== "weekly"; }));
   root.querySelector("#r-save").addEventListener("click", async () => {
     const { tabId, conversationUrl, text, platform } = getFormContext();
-    if (!tabId || !text) return;
+    if (!tabId || !text) {
+      alert("Pick a tab and write a prompt first.");
+      return;
+    }
     const freq = root.querySelector("input[name=freq]:checked").value;
     const time = root.querySelector("#r-time").value || "09:00";
     const days = freq === "weekly"
@@ -31,6 +36,7 @@ export function mountRecurringForm(root, getFormContext) {
     const { recurring = [] } = await chrome.storage.local.get("recurring");
     recurring.push(rule);
     await chrome.storage.local.set({ recurring });
+    alert(`Recurring ${freq} at ${time} saved.`);
   });
 }
 

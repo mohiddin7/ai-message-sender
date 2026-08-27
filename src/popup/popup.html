@@ -2,47 +2,113 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <link rel="stylesheet" href="ui-tokens.css">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <header>
-    <h1>AI Auto-Sender</h1>
-    <span id="badge" class="badge">…</span>
+  <!-- Icon sprite (inlined by JS) -->
+  <div id="sprite-host"></div>
+
+  <header class="popup-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg class="i i-lg"><use href="#i-spark"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">AI Auto-Sender</div>
+        <div class="brand-sub">Schedule a prompt</div>
+      </div>
+    </div>
+    <div id="badge" class="platform-pill" data-platform="generic">
+      <span class="platform-dot"></span>
+      <span class="platform-label">…</span>
+    </div>
   </header>
 
-  <section id="controls" hidden>
-    <div class="modes" role="tablist">
-      <button data-mode="delay"    class="mode active" role="tab">Delay</button>
-      <button data-mode="absolute" class="mode"        role="tab">At time</button>
-      <button data-mode="reset"    class="mode"        role="tab">Reset</button>
-      <button data-mode="chain"    class="mode"        role="tab">Chain</button>
-    </div>
-    <div id="time-controls"></div>
+  <main>
+    <section id="controls" class="popup-section" hidden>
+      <div class="modes segmented" role="tablist" aria-label="Time mode">
+        <button data-mode="delay"    class="segment is-active" role="tab" aria-selected="true" type="button">
+          <svg class="i"><use href="#i-clock"/></svg>
+          <span>Delay</span>
+        </button>
+        <button data-mode="absolute" class="segment" role="tab" aria-selected="false" type="button">
+          <svg class="i"><use href="#i-calendar"/></svg>
+          <span>At time</span>
+        </button>
+        <button data-mode="reset"    class="segment" role="tab" aria-selected="false" type="button">
+          <svg class="i"><use href="#i-rotate"/></svg>
+          <span>Reset</span>
+        </button>
+        <button data-mode="chain"    class="segment" role="tab" aria-selected="false" type="button">
+          <svg class="i"><use href="#i-link"/></svg>
+          <span>Chain</span>
+        </button>
+      </div>
 
-    <div class="picker-row">
-      <button id="pickInput"  class="picker">🎯 Teach input</button>
-      <button id="pickButton" class="picker">🎯 Teach send</button>
-    </div>
+      <div id="time-controls" class="time-controls"></div>
 
-    <textarea id="msg" placeholder="Type your prompt…"></textarea>
-    <button id="saveBtn" class="primary">Queue</button>
+      <div class="picker-row">
+        <button id="pickInput"  class="btn-picker" type="button">
+          <svg class="i"><use href="#i-target"/></svg>
+          <span>Teach input</span>
+        </button>
+        <button id="pickButton" class="btn-picker" type="button">
+          <svg class="i"><use href="#i-send"/></svg>
+          <span>Teach send</span>
+        </button>
+      </div>
 
-    <details class="recurring">
-      <summary>↻ Make this recurring</summary>
-      <div id="recurring-form"></div>
-    </details>
-  </section>
+      <label for="msg" class="sr-only">Prompt to send</label>
+      <div class="prompt-field">
+        <textarea id="msg" placeholder="What should I send?" rows="3"></textarea>
+        <div id="err" class="prompt-error" role="alert" aria-live="assertive"></div>
+      </div>
 
-  <section id="queue-section">
-    <h2>Queue</h2>
-    <div id="queue-list"></div>
-  </section>
+      <button id="saveBtn" class="btn btn-primary btn-block btn-lg" type="button">
+        <span>Queue prompt</span>
+        <svg class="i"><use href="#i-chevron-right"/></svg>
+      </button>
 
-  <footer>
-    <a id="open-welcome" href="#">Welcome</a>
-    <a id="open-options" href="#">Options</a>
-    <a id="open-privacy" href="privacy-policy.html">Privacy</a>
-    <a id="open-coffee"  href="#">Support</a>
+      <details class="recurring-toggle">
+        <summary>
+          <svg class="i"><use href="#i-repeat"/></svg>
+          <span>Make this recurring</span>
+          <svg class="i chev"><use href="#i-chevron-down"/></svg>
+        </summary>
+        <div id="recurring-form" class="recurring-body"></div>
+      </details>
+    </section>
+
+    <section class="popup-section queue-section" aria-labelledby="queue-h">
+      <div class="section-head">
+        <h2 id="queue-h" class="section-title">
+          <svg class="i"><use href="#i-list"/></svg>
+          Queue
+          <span class="section-count" id="queue-count">0</span>
+        </h2>
+      </div>
+      <div id="queue-list" class="queue-list" role="status" aria-live="polite" aria-atomic="false"></div>
+    </section>
+  </main>
+
+  <footer class="popup-footer">
+    <a id="open-welcome" href="#" class="footer-link">
+      <svg class="i"><use href="#i-house"/></svg>
+      <span>Welcome</span>
+    </a>
+    <a id="open-history" href="#" class="footer-link" aria-label="Open history of sent messages">
+      <svg class="i"><use href="#i-book"/></svg>
+      <span>History</span>
+    </a>
+    <a id="open-privacy" href="privacy-policy.html" class="footer-link">
+      <svg class="i"><use href="#i-shield"/></svg>
+      <span>Privacy</span>
+    </a>
+    <a id="open-coffee"  href="#" class="footer-link footer-coffee" aria-label="Buy me a coffee to support the developer">
+      <svg class="i"><use href="#i-coffee"/></svg>
+      <span>Buy me a coffee</span>
+    </a>
   </footer>
 
   <script type="module" src="popup.js"></script>
