@@ -312,6 +312,30 @@ main {
   background: var(--surface);
   border-color: var(--line-strong);
 }
+.btn-picker {
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  padding: 8px 10px;
+  gap: 4px;
+}
+.btn-picker .picker-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--weight-semibold);
+}
+.btn-picker .picker-status {
+  font-size: var(--text-2xs);
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-picker .picker-status[data-state="set"] {
+  color: var(--ok);
+}
 .btn-picker .i { color: var(--brand); stroke-width: 1.75; }
 
 /* ---- Prompt textarea ---- */

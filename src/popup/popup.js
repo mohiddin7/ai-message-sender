@@ -69,6 +69,28 @@ document.getElementById("open-coffee").addEventListener("click", e => {
 
 mountRecurringForm(document.getElementById("recurring-form"), () => ({ tabId: currentTab?.id, conversationUrl: currentTab?.url, text: document.getElementById("msg").value, platform: currentPlatform }));
 
+async function refreshPickerStatus() {
+  const { selectors = {} } = await chrome.storage.local.get("selectors");
+  const cur = selectors[currentPlatform] || {};
+  const inputEl  = document.querySelector("#pickInput  .picker-status");
+  const buttonEl = document.querySelector("#pickButton .picker-status");
+  if (inputEl)  updatePickerStatus(inputEl,  cur.input);
+  if (buttonEl) updatePickerStatus(buttonEl, cur.sendButton);
+}
+
+function updatePickerStatus(el, selector) {
+  if (!el) return;
+  if (selector) {
+    el.dataset.state = "set";
+    el.textContent = "✓ Mapped to " + (selector.length > 28 ? selector.slice(0, 25) + "…" : selector);
+    el.title = selector;
+  } else {
+    el.dataset.state = "unset";
+    el.textContent = "click to teach";
+    el.title = "";
+  }
+}
+
 async function triggerPicker(type) {
   // Content script is auto-injected on every URL by the manifest. The executeScript
   // call is a safety net for browser-internal pages where auto-injection is denied.
@@ -109,6 +131,7 @@ async function triggerPicker(type) {
   badge.dataset.platform = isWellKnownPlatform(currentPlatform) ? currentPlatform : "generic";
   controls.hidden = false;
   tc.render();
+  await refreshPickerStatus();
   renderQueueList(document.getElementById("queue-list"));
 
   // Auto-fire the tutorial on first run (no settings.tutorialSeen flag yet).
