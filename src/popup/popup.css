@@ -407,6 +407,13 @@ main {
   transition: all var(--duration-fast) var(--ease-out);
 }
 .btn-icon:hover:not(:disabled) { background: var(--surface-2); color: var(--fg); }
+
+.btn-icon .btn-icon-label {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  margin-left: 4px;
+  letter-spacing: 0.02em;
+}
 .btn-icon.btn-icon-danger:hover:not(:disabled) { background: var(--err-soft); color: var(--err-fg); }
 
 /* ---- Recurring collapsible ---- */

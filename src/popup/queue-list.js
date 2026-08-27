@@ -44,8 +44,9 @@ export async function renderQueueList(rootEl) {
         ${item.lastError ? `<div class="qi-error">${escapeHtml(item.lastError)}</div>` : ""}
       </div>
       <div class="qi-actions">
-        <button class="btn-icon" data-act="dryrun" data-id="${item.id}" type="button" title="Dry run" aria-label="Dry run this item">
+        <button class="btn-icon" data-act="dryrun" data-id="${item.id}" type="button" title="Dry run (test without sending)" aria-label="Dry run this item">
           <svg class="i"><use href="#i-play"/></svg>
+          <span class="btn-icon-label">Test</span>
         </button>
         <button class="btn-icon btn-icon-danger" data-act="cancel" data-id="${item.id}" type="button" title="Cancel" aria-label="Cancel this item">
           <svg class="i"><use href="#i-x"/></svg>
