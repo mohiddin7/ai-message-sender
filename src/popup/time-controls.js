@@ -17,8 +17,7 @@ const DELAY_CHIPS = [
 const ABS_PRESETS = [
   { label: "In 1h",  fn: () => nextSlot(Date.now() + 3600_000) },
   { label: "In 3h",  fn: () => nextSlot(Date.now() + 3 * 3600_000) },
-  { label: "Tomorrow 9am", fn: () => tomorrowAt(9, 0) },
-  { label: "Mon 9am", fn: () => nextWeekday(1, 9, 0) }
+  { label: "Tomorrow 9am", fn: () => tomorrowAt(9, 0) }
 ];
 
 export function mountTimeControls(root, { onChange }) {
@@ -38,7 +37,10 @@ export function mountTimeControls(root, { onChange }) {
     DELAY_CHIPS.forEach(c => {
       const b = document.createElement("button");
       b.className = "chip"; b.type = "button"; b.textContent = c.label;
-      if (c.ms === value) b.classList.add("active");
+      // popup.css only styles .chip.is-active — "active" (no CSS rule for
+      // it) rendered the selected delay chip visually identical to the
+      // rest, so there was no indication which one was picked.
+      if (c.ms === value) b.classList.add("is-active");
       b.addEventListener("click", () => {
         value = typeof c.ms === "number" ? c.ms : computePresetMs(c.ms);
         onChange({ mode, value });
@@ -67,11 +69,11 @@ export function mountTimeControls(root, { onChange }) {
     const grid = document.createElement("div");
     grid.className = "when-grid";
     const fields = [
-      { k: "year",   label: "Year",  min: 2026, max: 2099, w: 64 },
-      { k: "month",  label: "Mo",    min: 1,    max: 12,   w: 44 },
-      { k: "day",    label: "Day",   min: 1,    max: 31,   w: 44 },
-      { k: "hour",   label: "Hr",    min: 0,    max: 23,   w: 44 },
-      { k: "minute", label: "Min",   min: 0,    max: 59,   w: 44 }
+      { k: "year",   label: "Year",  min: 2026, max: 2099 },
+      { k: "month",  label: "Mo",    min: 1,    max: 12   },
+      { k: "day",    label: "Day",   min: 1,    max: 31   },
+      { k: "hour",   label: "Hr",    min: 0,    max: 23   },
+      { k: "minute", label: "Min",   min: 0,    max: 59   }
     ];
     const inputs = {};
     fields.forEach(f => {
@@ -86,7 +88,12 @@ export function mountTimeControls(root, { onChange }) {
       inp.min = String(f.min); inp.max = String(f.max);
       inp.value = String(draft[f.k]);
       inp.dataset.k = f.k;
-      inp.style.width = f.w + "px";
+      // No inline width here — popup.css's .when-cell input { width:100% }
+      // fills each equal-width grid track. An earlier fixed-px inline
+      // width (64px for year, 44px for the rest) fought that: year
+      // overflowed its ~61px track slightly, and the narrower fields sat
+      // left-aligned in their tracks with visible empty space on the
+      // right, reading as uneven, inconsistent gaps between the 5 fields.
       cell.appendChild(sub);
       cell.appendChild(inp);
       grid.appendChild(cell);
@@ -101,6 +108,15 @@ export function mountTimeControls(root, { onChange }) {
       const b = document.createElement("button");
       b.className = "chip"; b.type = "button"; b.textContent = p.label;
       b.addEventListener("click", () => {
+        // These presets fill the 5 fields rather than persist a selected
+        // state (editing a field afterward should feel like a normal
+        // edit, not "still following the preset"), so there's no lasting
+        // .is-active to track. Flash the clicked chip briefly instead —
+        // otherwise clicking gave no visible sign the click registered at
+        // all, just a silent change in the fields above.
+        presets.querySelectorAll(".chip").forEach(c => c.classList.remove("is-active"));
+        b.classList.add("is-active");
+        setTimeout(() => b.classList.remove("is-active"), 450);
         const ts = p.fn();
         const dd = new Date(ts);
         inputs.year.value   = dd.getFullYear();
@@ -296,15 +312,6 @@ function computePresetMs(kind) {
 function tomorrowAt(h, m) {
   const d = new Date();
   d.setDate(d.getDate() + 1);
-  d.setHours(h, m, 0, 0);
-  return d.getTime();
-}
-
-function nextWeekday(target, h, m) {
-  const d = new Date();
-  while (d.getDay() !== target || (d.getHours() > h) || (d.getHours() === h && d.getMinutes() >= m)) {
-    d.setDate(d.getDate() + 1);
-  }
   d.setHours(h, m, 0, 0);
   return d.getTime();
 }
