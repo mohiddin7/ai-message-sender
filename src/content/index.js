@@ -68,6 +68,19 @@ if (window.__aiAutoSenderInit) {
         sendResponse({ ok: true });
         break;
       }
+      case MESSAGE_TYPES.CHAIN_ARM: {
+        // Popup just queued a chain item. Arm the response watcher; when the
+        // page's current response finishes, tell the background to schedule the
+        // real send.
+        showPickerLabel({ title: "Watching for response to end…", kind: "info" });
+        watchResponse(msg.platform, () => {
+          showPickerLabel({ title: "Sending now…", kind: "valid" });
+          chrome.runtime.sendMessage({ action: MESSAGE_TYPES.CHAIN_READY, itemId: msg.itemId });
+          setTimeout(hidePickerLabel, 2500);
+        });
+        sendResponse({ ok: true });
+        return true;
+      }
       default:
         log.warn("content", "unknown action", msg.action);
     }

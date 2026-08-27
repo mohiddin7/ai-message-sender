@@ -51,6 +51,11 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   queue.push(item);
   await chrome.storage.local.set({ queue });
   if (item.scheduledAt) await scheduleAlarm(item);
+  if (item.mode === "chain") {
+    // Arm the content-script response watcher. Without this, the chain
+    // item never fires — it has no scheduledAt and never enters onAlarm.
+    chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.CHAIN_ARM, itemId: item.id, platform: currentPlatform }).catch(() => {});
+  }
   const when = scheduledAt ? new Date(scheduledAt).toLocaleString() : "when the response ends";
   err.textContent = "Queued.";
   alert(`Queued for ${when}.`);

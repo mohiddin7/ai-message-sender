@@ -70,7 +70,7 @@ test("detectPlatformFromUrl maps correctly", () => {
 });
 
 test("MESSAGE_TYPES contains the expected keys", () => {
-  for (const k of ["START_PICKING","PICKER_CONFIRMED","INJECT_AND_SEND","DETECT_RESET","CHAIN_READY","DRY_RUN_ITEM","CANCEL_ITEM","RETARGET_ITEM"]) {
+  for (const k of ["START_PICKING","PICKER_CONFIRMED","INJECT_AND_SEND","DETECT_RESET","CHAIN_ARM","CHAIN_READY","DRY_RUN_ITEM","CANCEL_ITEM","RETARGET_ITEM"]) {
     assert.ok(MESSAGE_TYPES[k], k);
   }
 });
