@@ -26,6 +26,7 @@ main {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* ---- Header ---- */
@@ -334,7 +335,7 @@ main {
 /* ---- Picker buttons ---- */
 .picker-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
@@ -351,6 +352,12 @@ main {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   transition: all var(--duration-fast) var(--ease-out);
+  /* Grid/flex items default to min-width: auto (their content's
+     min-content size). With a nowrap status line inside, that let a long
+     selector force this button — and the whole 360px popup — wider.
+     min-width: 0 lets the column stay fixed and the status text wrap
+     inside it instead. */
+  min-width: 0;
 }
 .btn-picker:hover {
   color: var(--fg);
@@ -374,9 +381,10 @@ main {
   font-size: var(--text-2xs);
   color: var(--fg-subtle);
   font-family: var(--font-mono);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Wrap onto a second line instead of truncating or stretching the
+     button. Selectors have no spaces, so allow a break anywhere. */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .btn-picker .picker-status[data-state="set"] {
   color: var(--ok);

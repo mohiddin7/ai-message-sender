@@ -86,7 +86,10 @@ function updatePickerStatus(el, selector) {
   if (!el) return;
   if (selector) {
     el.dataset.state = "set";
-    el.textContent = "✓ Mapped to " + (selector.length > 28 ? selector.slice(0, 25) + "…" : selector);
+    // CSS wraps this onto extra lines (overflow-wrap: anywhere) instead of
+    // widening the button, so show the real selector rather than an
+    // ellipsis-truncated one. Still cap absurd outliers.
+    el.textContent = "✓ Mapped to " + (selector.length > 80 ? selector.slice(0, 77) + "…" : selector);
     el.title = selector;
   } else {
     el.dataset.state = "unset";
