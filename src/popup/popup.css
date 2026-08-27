@@ -20,6 +20,11 @@ body {
 
 main {
   padding: var(--space-3) var(--space-3) var(--space-2);
+  /* The footer is a fixed overlay (see .popup-footer) and no longer
+     reserves space in the flex column, so without this the last queue
+     item would scroll to a stop permanently hidden under the floating
+     bar. 52px footer + 12px bottom offset + 8px clearance. */
+  padding-bottom: 72px;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -680,23 +685,30 @@ main::-webkit-scrollbar {
 .tag.is-recurring { background: var(--warn-soft); color: var(--warn-fg); }
 .tag.is-waiting { background: var(--brand-soft); color: var(--brand); }
 
-/* ---- Footer ---- */
+/* ---- Footer ----
+   An overlay, not a layout element: position: fixed takes it out of the
+   body's flex column entirely, so it floats on top of main's scrolled
+   content (the popup window is the fixed containing block — there's
+   nothing to scroll except main, and this never moves with it) instead of
+   reserving its own row and pushing content up. left/right/bottom match
+   the old margin values 1:1, so it sits in exactly the same visual spot
+   it did as a normal flow element. */
 .popup-footer {
+  position: fixed;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 5;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 2px;
   /* This vertical value is the main height knob for the whole footer card
      — tweak it directly. Horizontal stays var(--space-2)/8px. */
   padding: 5px var(--space-2);
-  /* Floats as its own rounded card: a gap to the popup edge on the left,
-     right, and bottom. No top margin — it already sits flush under the
-     queue list above, so a top gap would just be a second divider. */
-  margin: 0 var(--space-3) var(--space-3) var(--space-3);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  flex: 0 0 auto;
+  box-shadow: var(--shadow-md);
 }
 .footer-link {
   display: flex;
