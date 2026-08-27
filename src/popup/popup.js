@@ -61,6 +61,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 document.getElementById("open-welcome").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") }); });
 document.getElementById("open-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
 document.getElementById("open-tutorial").addEventListener("click", e => { e.preventDefault(); startTutorial({ force: true }); });
+document.getElementById("open-privacy").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("privacy-policy.html") }); });
 
 mountRecurringForm(document.getElementById("recurring-form"), () => ({ tabId: currentTab?.id, conversationUrl: currentTab?.url, text: document.getElementById("msg").value, platform: currentPlatform }));
 
