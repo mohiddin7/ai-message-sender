@@ -263,7 +263,12 @@ main::-webkit-scrollbar {
 }
 .time-controls .when-cell input.err { border-color: var(--err); }
 
-.chip-row {
+/* time-controls.js creates these containers as class="chips" (delay chips)
+   and class="chips when-presets" (the presets row under the date/time
+   grid) — .chip-row never matched anything real, so this container had no
+   flex/gap at all and the chip buttons rendered flush against each other
+   with 0px between them. */
+.chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
