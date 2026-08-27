@@ -685,6 +685,25 @@ main::-webkit-scrollbar {
 .tag.is-recurring { background: var(--warn-soft); color: var(--warn-fg); }
 .tag.is-waiting { background: var(--brand-soft); color: var(--brand); }
 
+/* ---- Footer mask ----
+   Sits one layer behind .popup-footer, full popup width, flush to the
+   bottom edge. Plain, square-cornered, no border — same color as the
+   popup background. Its only job is to cover scrolled main content in
+   the strip below/around the floating footer card (the footer no longer
+   reserves space, so main's content can otherwise scroll all the way to
+   the popup's bottom edge and peek out past the footer's rounded corners
+   and 12px side margins). */
+.popup-footer-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  height: 26px;
+  background: var(--bg);
+  z-index: 4;
+}
+
 /* ---- Footer ----
    An overlay, not a layout element: position: fixed takes it out of the
    body's flex column entirely, so it floats on top of main's scrolled
