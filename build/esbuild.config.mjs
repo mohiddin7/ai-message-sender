@@ -13,8 +13,9 @@ await Promise.all([
 
 await mkdir("dist", { recursive: true });
 
-// Copy bundled HTML/CSS shells (flat in dist/)
-for (const f of ["src/popup/popup.html", "src/popup/popup.css", "src/options/options.html", "src/options/options.css", "src/welcome/welcome.html", "src/welcome/welcome.css", "src/lib/ui-tokens.css", "src/content/selector-picker.css"]) {
+// Copy bundled HTML/CSS shells (flat in dist/). selector-picker.css is no
+// longer shipped — its styles are injected inline by the content script.
+for (const f of ["src/popup/popup.html", "src/popup/popup.css", "src/options/options.html", "src/options/options.css", "src/welcome/welcome.html", "src/welcome/welcome.css", "src/lib/ui-tokens.css"]) {
   await copyFile(f, "dist/" + f.split("/").pop());
 }
 

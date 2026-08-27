@@ -14,7 +14,46 @@
 const LABEL_ID = "auto-sender-picker-label";
 const SKIP_ATTR = "data-extension-skip";
 const STYLE_ID = "auto-sender-picker-style";
-const PICKER_CSS_HREF = "selector-picker.css";
+
+// Picker styles are injected inline as a <style data-extension-skip> tag.
+// Earlier we linked an external stylesheet via chrome.runtime.getURL, but
+// the file isn't declared web_accessible_resources in manifest.json, so
+// Chrome blocks the request and the hover outline never appears. Inlining
+// fixes that, and inline JS-set outline (below) also beats any page CSS
+// specificity — exactly how v4 did it.
+const PICKER_STYLE_TEXT = `
+[data-extension-skip] { cursor: default !important; }
+#auto-sender-picker-style { display: none; }
+#auto-sender-picker-label {
+  position: fixed; top: 14px; right: 14px; z-index: 2147483647;
+  display: inline-flex; align-items: center; gap: 8px;
+  max-width: 360px; padding: 10px 14px;
+  font: 500 13px/1.4 "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: #fff; background: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18), 0 2px 4px rgba(0,0,0,.12);
+  pointer-events: none; opacity: 0; transform: translateY(-4px);
+  transition: opacity 180ms cubic-bezier(.16,1,.3,1), transform 180ms cubic-bezier(.16,1,.3,1), background 180ms ease-out;
+  -webkit-font-smoothing: antialiased; backdrop-filter: blur(12px);
+}
+#auto-sender-picker-label.is-visible { opacity: 1; transform: translateY(0); }
+#auto-sender-picker-label.is-valid { background: var(--picker-brand, #2563eb); }
+#auto-sender-picker-label.is-warn  { background: var(--picker-warn,  #b45309); }
+#auto-sender-picker-label.is-error { background: var(--picker-error, #b91c1c); }
+#auto-sender-picker-label .picker-icon {
+  width: 16px; height: 16px; flex-shrink: 0; fill: none; stroke: currentColor;
+  stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+}
+#auto-sender-picker-label .picker-selector {
+  display: block; margin-top: 2px;
+  font: 400 11px/1.3 ui-monospace, "SF Mono", Menlo, monospace;
+  opacity: .85; word-break: break-all;
+}
+.picker-active, .picker-active * { cursor: crosshair !important; }
+.picker-active [data-extension-skip],
+.picker-active [data-extension-skip] * { cursor: default !important; }
+`;
 
 const TAILWIND_PREFIX = /^(fixed|absolute|relative|sticky|inset-|z-|p-|m-|px-|py-|mx-|my-|pt-|pb-|pl-|pr-|mt-|mb-|ml-|mr-|w-|h-|min-|max-|bg-|text-|border-|rounded-|shadow-|transition|duration-|ease-|opacity-|pointer-|cursor-|flex|grid|gap-|space-|justify-|items-|self-|content-|order-|col-|row-|block|inline|hidden|visible|overflow-|hover:|focus:|active:|disabled:|group-|sm:|md-|lg:|xl:|2xl:|dark:|sr-only|truncate)/;
 
@@ -134,13 +173,22 @@ function targetFor(e, type) {
 }
 
 function clearHover(el) {
-  if (!el) return;
-  el.classList.remove("picker-hover-valid");
-  el.classList.remove("picker-hover-error");
+  if (!el || !el.style) return;
+  // Strip both our outline prop and the legacy class, so re-opening the
+  // picker after a previous teach never leaves a stale outline on the page.
+  el.style.removeProperty("outline");
+  el.style.removeProperty("outline-offset");
+  el.classList.remove("picker-hover-valid", "picker-hover-error");
 }
 
 function setHover(el, kind /* "valid" | "error" */) {
-  if (!el) return;
+  if (!el || !el.style) return;
+  // v4 set outline inline via setProperty(..., 'important') and it always
+  // won. CSS classes from an extension stylesheet get beat by host-page
+  // !important rules sometimes; inline style doesn't. Match v4 exactly.
+  const color = kind === "error" ? "#b91c1c" : "#2563eb";
+  el.style.setProperty("outline", `3px dashed ${color}`, "important");
+  el.style.setProperty("outline-offset", "-3px", "important");
   el.classList.toggle("picker-hover-valid", kind === "valid");
   el.classList.toggle("picker-hover-error", kind === "error");
 }
@@ -176,16 +224,13 @@ const hideLabel = hidePickerLabel;
 
 function ensurePickerStylesheet() {
   if (document.getElementById(STYLE_ID)) return;
-  const link = document.createElement("link");
-  link.id = STYLE_ID;
-  link.rel = "stylesheet";
-  link.href = chrome.runtime.getURL(PICKER_CSS_HREF);
-  link.setAttribute(SKIP_ATTR, "");
-  document.head.appendChild(link);
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.setAttribute(SKIP_ATTR, "");
+  style.textContent = PICKER_STYLE_TEXT;
+  (document.head || document.documentElement).appendChild(style);
   // Mirror the design system brand color as CSS custom properties on the
-  // documentElement so the picker label and hover outlines stay in sync
-  // with src/lib/ui-tokens.css. Change the brand in ui-tokens.css and the
-  // picker follows automatically.
+  // documentElement so the picker label stays in sync with ui-tokens.css.
   document.documentElement.style.setProperty("--picker-brand", "#2563eb");
   document.documentElement.style.setProperty("--picker-warn",  "#b45309");
   document.documentElement.style.setProperty("--picker-error", "#b91c1c");
