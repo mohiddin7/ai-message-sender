@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Reset Page</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #fafafa; color: #222; }
+    h1 { font-size: 18px; }
+    .chat { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 16px; min-height: 200px; margin-bottom: 16px; }
+    .msg { padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; max-width: 80%; }
+    .user { background: #dbeafe; margin-left: auto; }
+    .ai { background: #f3f4f6; }
+    .input-row { display: flex; gap: 8px; }
+    #prompt { flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 44px; font-family: inherit; }
+    #send { padding: 10px 20px; background: #2563eb; color: white; border: 0; border-radius: 6px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Test Chat Page (with "resets in 2 hours")</h1>
+  <p>Page contains the text the Claude reset detector looks for.</p>
+  <div class="chat" id="chat">
+    <div class="msg ai">Hello! I can be reset. Limit resets in 2 hours.</div>
+  </div>
+  <div class="input-row">
+    <textarea id="prompt" placeholder="Type your prompt…"></textarea>
+    <button id="send">Send</button>
+  </div>
+</body>
+</html>

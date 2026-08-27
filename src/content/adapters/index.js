@@ -1,6 +1,7 @@
 import * as claude from "./claude.js";
 import * as chatgpt from "./chatgpt.js";
 import * as gemini from "./gemini.js";
+import * as generic from "./generic.js";
 import { PLATFORMS } from "../../lib/platform.js";
 
 export const adapters = {
@@ -10,7 +11,5 @@ export const adapters = {
 };
 
 export function getAdapter(platform) {
-  const a = adapters[platform];
-  if (!a) throw new Error(`no adapter for platform: ${platform}`);
-  return a;
+  return adapters[platform] || generic;
 }

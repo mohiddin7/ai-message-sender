@@ -1,27 +1,17 @@
 {
   "manifest_version": 3,
   "name": "AI Auto-Sender",
-  "version": "5.0.0",
-  "description": "Schedule prompts to Claude, ChatGPT, and Gemini with multi-queue, multi-tab, dry-run, and recurring schedules.",
+  "version": "5.1.0",
+  "description": "Schedule prompts to any AI chat site (Claude, ChatGPT, Gemini, and beyond) with multi-queue, multi-tab, dry-run, and recurring schedules.",
   "minimum_chrome_version": "120",
-  "permissions": ["alarms", "storage", "tabs", "windows", "scripting", "notifications"],
-  "host_permissions": [
-    "https://*.claude.ai/*",
-    "https://chatgpt.com/*",
-    "https://chat.openai.com/*",
-    "https://gemini.google.com/*"
-  ],
+  "permissions": ["alarms", "storage", "tabs", "windows", "scripting"],
+  "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "dist/background.js", "type": "module" },
   "action": { "default_popup": "dist/popup.html" },
   "options_ui": { "page": "dist/options.html", "open_in_tab": true },
   "content_scripts": [
     {
-      "matches": [
-        "https://*.claude.ai/*",
-        "https://chatgpt.com/*",
-        "https://chat.openai.com/*",
-        "https://gemini.google.com/*"
-      ],
+      "matches": ["<all_urls>"],
       "js": ["dist/content.js"]
     }
   ],

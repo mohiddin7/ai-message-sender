@@ -62,11 +62,15 @@ test("detectPlatformFromUrl maps correctly", () => {
   assert.equal(detectPlatformFromUrl("https://chatgpt.com/c/abc"),     PLATFORMS.GPT);
   assert.equal(detectPlatformFromUrl("https://chat.openai.com/c/abc"), PLATFORMS.GPT);
   assert.equal(detectPlatformFromUrl("https://gemini.google.com/app"), PLATFORMS.GEMINI);
-  assert.equal(detectPlatformFromUrl("https://example.com"), null);
+  assert.equal(detectPlatformFromUrl("https://example.com"), "example.com");
+  assert.equal(detectPlatformFromUrl("https://chat.deepseek.com/"), "chat.deepseek.com");
+  assert.equal(detectPlatformFromUrl("chrome://extensions/"), null);
+  assert.equal(detectPlatformFromUrl("about:blank"), null);
+  assert.equal(detectPlatformFromUrl("file:///tmp/x"), null);
 });
 
 test("MESSAGE_TYPES contains the expected keys", () => {
-  for (const k of ["START_PICKING","INJECT_AND_SEND","DETECT_RESET","CHAIN_READY","DRY_RUN_ITEM","CANCEL_ITEM","RETARGET_ITEM"]) {
+  for (const k of ["START_PICKING","PICKER_CONFIRMED","INJECT_AND_SEND","DETECT_RESET","CHAIN_READY","DRY_RUN_ITEM","CANCEL_ITEM","RETARGET_ITEM"]) {
     assert.ok(MESSAGE_TYPES[k], k);
   }
 });
@@ -95,9 +99,16 @@ test("queueStore.remove deletes the item", async () => {
   assert.equal((await queueStore.list()).length, 0);
 });
 
-test("queueStore.add validates platform and id", async () => {
+test("queueStore.add validates id", async () => {
   await assert.rejects(() => queueStore.add({ text: "x" }), /id required/);
-  await assert.rejects(() => queueStore.add({ id: "q_z", platform: "wat", text: "x", mode: "absolute", scheduledAt: 1, status: "pending", attempts: 0, lastError: null, createdAt: 1, tabId: 1, conversationUrl: "u" }), /bad platform/);
+});
+
+test("queueStore.add accepts any hostname platform", async () => {
+  memStore.clear();
+  await queueStore.add({ id: "q_z", platform: "chat.deepseek.com", text: "x", mode: "absolute", scheduledAt: 1, status: "pending", attempts: 0, lastError: null, createdAt: 1, tabId: 1, conversationUrl: "u" });
+  const all = await queueStore.list();
+  assert.equal(all.length, 1);
+  assert.equal(all[0].platform, "chat.deepseek.com");
 });
 
 test("queueStore.getByStatus filters correctly", async () => {
@@ -123,14 +134,37 @@ test("queueStore.migrate converts legacy keys and removes them", async () => {
   assert.equal(queue.length, 1);
   assert.equal(queue[0].text, "legacy hi");
   assert.equal(queue[0].migratedFromV4, true);
+  // In v5.1+ the selectors are keyed by hostname, not the short name.
+  assert.equal(queue[0].platform, "claude.ai");
   const sel = await queueStore.getSelectors();
-  assert.equal(sel.claude.input, "#claude-input");
+  assert.equal(sel["claude.ai"].input, "#claude-input");
+  assert.equal(sel.claude, undefined);
 });
 
 test("queueStore.migrate is idempotent", async () => {
   await queueStore.migrate();
   const { migrated } = await queueStore.migrate();
   assert.equal(migrated, 0);
+});
+
+test("queueStore.migrate renames v5 short-name selectors to hostnames", async () => {
+  memStore.clear();
+  // Pre-existing v5 selectors keyed by short name
+  memStore.set("selectors", { claude: { input: "div[ce]", sendButton: "button[send]" }, gpt: { input: "textarea" } });
+  // Pre-existing v5 queue items with short-name platform
+  memStore.set("queue", [{ id: "q_old1", platform: "claude", text: "x", mode: "absolute", scheduledAt: 1, status: "pending", attempts: 0, lastError: null, createdAt: 1, tabId: 1, conversationUrl: "u" }]);
+  memStore.set("recurring", [{ id: "r_old1", platform: "gemini", tabId: 1, conversationUrl: "u", text: "y", schedule: { kind: "daily", timeOfDay: "09:00" }, enabled: true, createdAt: 1 }]);
+  await queueStore.migrate();
+  const sel = await queueStore.getSelectors();
+  assert.equal(sel["claude.ai"].input, "div[ce]");
+  assert.equal(sel["claude.ai"].sendButton, "button[send]");
+  assert.equal(sel["chatgpt.com"].input, "textarea");
+  assert.equal(sel.claude, undefined);
+  assert.equal(sel.gpt, undefined);
+  const queue = await queueStore.list();
+  assert.equal(queue[0].platform, "claude.ai");
+  const rec = (await chrome.storage.local.get("recurring")).recurring;
+  assert.equal(rec[0].platform, "gemini.google.com");
 });
 
 // New tests for scheduler
@@ -215,6 +249,52 @@ test("syncStore.wipeSyncSelectors clears both", async () => {
 // New tests for adapters
 import { getAdapter } from "../src/content/adapters/index.js";
 
+// Tests for focus-tab — must run in a context where chrome.tabs is available
+// (i.e. background). Content scripts do NOT have chrome.tabs; that's why this
+// helper lives in src/background/focus-tab.js and not in src/content.
+import { focusTargetTab } from "../src/background/focus-tab.js";
+
+test("focusTargetTab returns ok when chrome.tabs.get succeeds", async () => {
+  const origTabs = globalThis.chrome.tabs;
+  const origWin = globalThis.chrome.windows;
+  globalThis.chrome.tabs = {
+    get: async (id) => ({ id, windowId: 7 }),
+    update: async () => {}
+  };
+  globalThis.chrome.windows = { update: async () => {} };
+  try {
+    const r = await focusTargetTab(42);
+    assert.equal(r.ok, true);
+    assert.equal(r.step, "focusTab");
+    assert.equal(r.tabId, 42);
+  } finally {
+    if (origTabs === undefined) delete globalThis.chrome.tabs; else globalThis.chrome.tabs = origTabs;
+    if (origWin === undefined) delete globalThis.chrome.windows; else globalThis.chrome.windows = origWin;
+  }
+});
+
+test("focusTargetTab returns ok:false when chrome.tabs.get throws", async () => {
+  const origTabs = globalThis.chrome.tabs;
+  globalThis.chrome.tabs = { get: async () => { throw new Error("no tab"); } };
+  try {
+    const r = await focusTargetTab(999);
+    assert.equal(r.ok, false);
+    assert.equal(r.step, "focusTab");
+    assert.match(r.reason, /no tab/);
+  } finally {
+    if (origTabs === undefined) delete globalThis.chrome.tabs; else globalThis.chrome.tabs = origTabs;
+  }
+});
+
+test("content/sender does not import focusTab (chrome.tabs is unavailable in content scripts)", async () => {
+  // The previous bug was that focusTab lived in src/content/sender.js, where
+  // chrome.tabs is undefined. Make sure it never sneaks back.
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../src/content/sender.js", import.meta.url), "utf8");
+  assert.ok(!/focusTab\s*\(/.test(src), "content/sender.js should not call focusTab");
+  assert.ok(!/chrome\.tabs\b/.test(src), "content/sender.js should not reference chrome.tabs");
+});
+
 test("each adapter exposes defaultSelectors, isResponseComplete, detectReset", () => {
   for (const p of [PLATFORMS.CLAUDE, PLATFORMS.GPT, PLATFORMS.GEMINI]) {
     const a = getAdapter(p);
@@ -223,6 +303,14 @@ test("each adapter exposes defaultSelectors, isResponseComplete, detectReset", (
     assert.equal(typeof a.isResponseComplete, "function");
     assert.equal(typeof a.detectReset, "function");
   }
+});
+
+test("getAdapter falls back to generic for unknown platforms", () => {
+  const a = getAdapter("chat.deepseek.com");
+  assert.equal(typeof a.defaultSelectors.input, "string");
+  assert.equal(typeof a.defaultSelectors.sendButton, "string");
+  assert.equal(a.isResponseComplete(), true);
+  assert.equal(a.detectReset(), null);
 });
 
 test("detectReset returns null when no banner text matches", () => {

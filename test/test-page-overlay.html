@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Chat Page with Overlay</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #fafafa; color: #222; }
+    .chat { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 16px; min-height: 200px; margin-bottom: 16px; }
+    .msg { padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; max-width: 80%; }
+    .user { background: #dbeafe; margin-left: auto; }
+    .ai { background: #f3f4f6; }
+    .input-row { display: flex; gap: 8px; }
+    #prompt { flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 44px; font-family: inherit; }
+    #send { padding: 10px 20px; background: #2563eb; color: white; border: 0; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    /* Simulate a Next.js dev overlay: fixed positioned, full-width, full-height, high z-index */
+    .dev-overlay {
+      position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 1000;
+      background: rgba(0,0,0,0.5); padding: 20px; color: white; font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Chat Page (with fake dev overlay)</h1>
+  <div class="chat" id="chat">
+    <div class="msg ai">Hello! Try clicking the overlay - it should be rejected.</div>
+  </div>
+  <div class="input-row">
+    <textarea id="prompt" placeholder="Type your prompt…"></textarea>
+    <button id="send">Send</button>
+  </div>
+
+  <!-- Dev overlay mimicking Next.js error overlay -->
+  <div class="dev-overlay" id="dev-overlay">
+    <div>Build Error: missing import 'foo' (this is a FAKE overlay for testing the picker)</div>
+  </div>
+</body>
+</html>

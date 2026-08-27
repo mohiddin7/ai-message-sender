@@ -1,22 +1,9 @@
 import { getAdapter } from "./adapters/index.js";
 
-const STEPS = ["focusTab", "findInput", "writeText", "findButton", "clickSend"];
-
 function pickFirstSelector(selectors, fallback) {
   if (selectors?.input) return selectors.input;
   if (fallback?.input)  return fallback.input;
   return null;
-}
-
-export async function focusTab(tabId) {
-  try {
-    const tab = await chrome.tabs.get(tabId);
-    await chrome.windows.update(tab.windowId, { focused: true });
-    await chrome.tabs.update(tabId, { active: true });
-    return { ok: true, step: "focusTab", tabId };
-  } catch (e) {
-    return { ok: false, step: "focusTab", reason: String(e?.message || e) };
-  }
 }
 
 export function findInput(root, selectors, platform) {
@@ -75,10 +62,8 @@ export function clickSend(el) {
   }
 }
 
-export async function executeSend({ tabId, text, platform, selectors, root = document }) {
+export async function executeSend({ text, platform, selectors, root = document }) {
   const steps = [];
-  const focused = await focusTab(tabId); steps.push(focused);
-  if (!focused.ok) return { steps };
   const input = findInput(root, selectors, platform); steps.push(input);
   if (!input.ok) return { steps };
   const written = writeText(input.el, text); steps.push(written);
@@ -93,10 +78,8 @@ export async function executeSend({ tabId, text, platform, selectors, root = doc
 
 export async function dryRunSend(args) {
   // Same as executeSend, but never clicks the send button.
-  const { tabId, text, platform, selectors, root = document } = args;
+  const { text, platform, selectors, root = document } = args;
   const steps = [];
-  const focused = await focusTab(tabId); steps.push(focused);
-  if (!focused.ok) return { steps };
   const input = findInput(root, selectors, platform); steps.push(input);
   if (!input.ok) return { steps };
   const written = writeText(input.el, text); steps.push(written);
