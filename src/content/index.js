@@ -24,7 +24,10 @@ if (window.__aiAutoSenderInit) {
           try { alert(`Mapped ${msg.platform.toUpperCase()}! ${label} locked to selector: ${selector}`); } catch (_) {}
           chrome.runtime.sendMessage({ action: MESSAGE_TYPES.PICKER_CONFIRMED, type: msg.type, platform: msg.platform, selector });
         }});
-        break;
+        // Keep the channel open: the picker runs synchronously and never calls
+        // sendResponse, but the popup awaits this message. Without return true,
+        // chrome.tabs.sendMessage rejects with "Could not start picker".
+        return true;
       case MESSAGE_TYPES.INJECT_AND_SEND:
         (async () => {
           const selectors = await syncStore.getSelectors().then(s => s?.[msg.platform]);
