@@ -58,10 +58,13 @@ test("id rejects bad prefix", () => {
 });
 
 test("detectPlatformFromUrl maps correctly", () => {
-  assert.equal(detectPlatformFromUrl("https://claude.ai/chat/abc"), PLATFORMS.CLAUDE);
-  assert.equal(detectPlatformFromUrl("https://chatgpt.com/c/abc"),     PLATFORMS.GPT);
-  assert.equal(detectPlatformFromUrl("https://chat.openai.com/c/abc"), PLATFORMS.GPT);
-  assert.equal(detectPlatformFromUrl("https://gemini.google.com/app"), PLATFORMS.GEMINI);
+  // Well-known hosts return their hostname (the canonical key for selectors
+  // and queue items). Arbitrary hosts return their hostname too. The short
+  // PLATFORMS.* names are only used by the content adapter table.
+  assert.equal(detectPlatformFromUrl("https://claude.ai/chat/abc"),     "claude.ai");
+  assert.equal(detectPlatformFromUrl("https://chatgpt.com/c/abc"),     "chatgpt.com");
+  assert.equal(detectPlatformFromUrl("https://chat.openai.com/c/abc"), "chatgpt.com");
+  assert.equal(detectPlatformFromUrl("https://gemini.google.com/app"), "gemini.google.com");
   assert.equal(detectPlatformFromUrl("https://example.com"), "example.com");
   assert.equal(detectPlatformFromUrl("https://chat.deepseek.com/"), "chat.deepseek.com");
   assert.equal(detectPlatformFromUrl("chrome://extensions/"), null);
@@ -296,7 +299,7 @@ test("content/sender does not import focusTab (chrome.tabs is unavailable in con
 });
 
 test("each adapter exposes defaultSelectors, isResponseComplete, detectReset", () => {
-  for (const p of [PLATFORMS.CLAUDE, PLATFORMS.GPT, PLATFORMS.GEMINI]) {
+  for (const p of ["claude.ai", "chatgpt.com", "gemini.google.com"]) {
     const a = getAdapter(p);
     assert.equal(typeof a.defaultSelectors.input, "string");
     assert.equal(typeof a.defaultSelectors.sendButton, "string");
@@ -314,7 +317,7 @@ test("getAdapter falls back to generic for unknown platforms", () => {
 });
 
 test("detectReset returns null when no banner text matches", () => {
-  for (const p of [PLATFORMS.CLAUDE, PLATFORMS.GPT, PLATFORMS.GEMINI]) {
+  for (const p of ["claude.ai", "chatgpt.com", "gemini.google.com"]) {
     const a = getAdapter(p);
     const fakeRoot = { body: { innerText: "nothing here" } };
     assert.equal(a.detectReset(fakeRoot), null);
@@ -322,14 +325,14 @@ test("detectReset returns null when no banner text matches", () => {
 });
 
 test("detectReset parses HH:MM form on chatgpt", () => {
-  const a = getAdapter(PLATFORMS.GPT);
+  const a = getAdapter("chatgpt.com");
   const before = Date.now();
   const t = a.detectReset({ body: { innerText: "Resets in 1:30" } });
   assert.ok(t >= before + (90 * 60_000) - 5_000 && t <= before + (90 * 60_000) + 5_000);
 });
 
 test("detectReset parses hour-suffix form on chatgpt", () => {
-  const a = getAdapter(PLATFORMS.GPT);
+  const a = getAdapter("chatgpt.com");
   const before = Date.now();
   const t = a.detectReset({ body: { innerText: "2 hours left" } });
   assert.ok(t >= before + (2 * 3600_000) - 5_000 && t <= before + (2 * 3600_000) + 5_000);
