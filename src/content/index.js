@@ -24,9 +24,14 @@ if (window.__aiAutoSenderInit) {
           try { alert(`Mapped ${msg.platform.toUpperCase()}! ${label} locked to selector: ${selector}`); } catch (_) {}
           chrome.runtime.sendMessage({ action: MESSAGE_TYPES.PICKER_CONFIRMED, type: msg.type, platform: msg.platform, selector });
         }});
-        // Keep the channel open: the picker runs synchronously and never calls
-        // sendResponse, but the popup awaits this message. Without return true,
-        // chrome.tabs.sendMessage rejects with "Could not start picker".
+        // Ack immediately — picking itself finishes later (user has to click
+        // an element on the page). The popup awaits this response only to
+        // know the picker started, then calls window.close() so the user can
+        // see and click anywhere on the full page. If we waited for onPicked
+        // instead, the popup's await would hang until the user picks
+        // something, and the popup (covering part of the page) would never
+        // close.
+        sendResponse({ ok: true });
         return true;
       case MESSAGE_TYPES.INJECT_AND_SEND:
         (async () => {

@@ -27,6 +27,16 @@ main {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  /* Scrolling stays fully functional (wheel, trackpad, keyboard) — only the
+     scrollbar track/thumb is hidden. Chrome (the only engine this popup ever
+     renders in) uses the ::-webkit-scrollbar rule below; the other two
+     properties are harmless no-ops there but keep this correct if the popup
+     is ever inspected in Firefox/old Edge devtools. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+main::-webkit-scrollbar {
+  display: none;
 }
 
 /* ---- Header ---- */
