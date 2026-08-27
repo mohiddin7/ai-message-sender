@@ -53,9 +53,12 @@
   word-break: break-all;
 }
 
-/* Picker hover outlines applied to the target element by JS. */
-.picker-hover-valid { outline: 2px solid var(--picker-brand, #4f46e5) !important; outline-offset: 2px !important; }
-.picker-hover-error { outline: 2px solid var(--picker-error, #b91c1c) !important; outline-offset: 2px !important; }
+/* Picker hover outlines applied to the target element by JS.
+   Visual matches v4: 3px dashed blue (#2563eb) so users get the same
+   feedback they had before. The error state keeps a red dashed outline
+   so rejected elements (overlays, dev portals) read at a glance. */
+.picker-hover-valid { outline: 3px dashed #2563eb !important; outline-offset: -3px !important; }
+.picker-hover-error { outline: 3px dashed var(--picker-error, #b91c1c) !important; outline-offset: -3px !important; }
 
 /* The cursor: crosshair override (everything is pickable except our labels). */
 .picker-active, .picker-active * { cursor: crosshair !important; }

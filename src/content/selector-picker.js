@@ -186,7 +186,7 @@ function ensurePickerStylesheet() {
   // documentElement so the picker label and hover outlines stay in sync
   // with src/lib/ui-tokens.css. Change the brand in ui-tokens.css and the
   // picker follows automatically.
-  document.documentElement.style.setProperty("--picker-brand", "#7c3aed");
+  document.documentElement.style.setProperty("--picker-brand", "#2563eb");
   document.documentElement.style.setProperty("--picker-warn",  "#b45309");
   document.documentElement.style.setProperty("--picker-error", "#b91c1c");
 }

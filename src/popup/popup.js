@@ -136,9 +136,12 @@ async function triggerPicker(type) {
   controls.hidden = false;
   tc.render();
   await refreshPickerStatus();
-  chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.DETECT_RESET, platform: currentPlatform }, (resp) => {
-    if (resp?.ts && Number.isFinite(resp.ts)) tc.setResetSuggestion(resp.ts);
-  });
+  try {
+    chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.DETECT_RESET, platform: currentPlatform }, (resp) => {
+      if (chrome.runtime.lastError) return; // no content script on this tab — fine
+      if (resp?.ts && Number.isFinite(resp.ts)) tc.setResetSuggestion(resp.ts);
+    });
+  } catch (_) { /* tab is sandboxed, no content script, or page is gone */ }
   renderQueueList(document.getElementById("queue-list"));
 
   // Auto-fire the tutorial on first run (no settings.tutorialSeen flag yet).
