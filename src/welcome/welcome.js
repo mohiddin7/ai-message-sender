@@ -71,4 +71,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("nav-history-foot").addEventListener("click", openHistory);
   document.getElementById("nav-coffee")  .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
   document.getElementById("coffee")      .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
+  document.getElementById("nav-popup-tour").addEventListener("click", e => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL("popup.html?tour=tutorial") });
+  });
 });

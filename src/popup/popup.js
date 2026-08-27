@@ -87,6 +87,14 @@ async function triggerPicker(type) {
 }
 
 (async () => {
+  const tourMode = new URLSearchParams(location.search).get("tour") === "tutorial";
+  if (tourMode) {
+    // Tab-opened tour: there's no AI tab in this context. Mount the tutorial
+    // overlay over the popup DOM anyway — the targets (segmented control,
+    // picker row, etc.) are present in the popup markup.
+    setTimeout(() => startTutorial({ force: true }), 400);
+    return;
+  }
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tab;
   currentPlatform = detectPlatformFromUrl(tab.url);
