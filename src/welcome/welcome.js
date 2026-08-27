@@ -3,6 +3,7 @@
 // (settings.onboarded !== true). The nav-hub is always visible.
 
 import { SPRITE_HTML } from "./sprite.js";
+import { detectPlatformFromUrl } from "../lib/platform.js";
 
 const items = [...document.querySelectorAll("#steps .wizard-step")];
 const wizard = document.getElementById("wizard");
@@ -19,7 +20,6 @@ async function check() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab && tab.url) {
-      const { detectPlatformFromUrl } = await import("../lib/platform.js");
       currentPlatform = detectPlatformFromUrl(tab.url);
     }
   } catch (_) { /* no active tab, stay null */ }
