@@ -11,13 +11,29 @@ const navHub = document.getElementById("nav-hub");
 
 async function check() {
   const all = await chrome.storage.local.get(["selectors", "queue", "history", "settings"]);
+  // The "teach the input box / send button" steps only make sense for the
+  // platform the user is currently on. Look up that platform via the active
+  // tab; if there's no active tab (welcome tab is focused, e.g. after install)
+  // or no detected platform, fall back to false so the step stays disabled.
+  let currentPlatform = null;
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab && tab.url) {
+      const { detectPlatformFromUrl } = await import("../lib/platform.js");
+      currentPlatform = detectPlatformFromUrl(tab.url);
+    }
+  } catch (_) { /* no active tab, stay null */ }
   for (const li of items) {
     const v = li.dataset.verify;
     if (!v) continue;
     let ok = false;
     if (v.startsWith("selectors.")) {
+      // Verify string just names the data source; the field is "input" or
+      // "sendButton" (the last dotted segment). Look it up on the active
+      // platform only, not any platform.
       const key = v.split(".").pop();
-      ok = !!all.selectors && Object.values(all.selectors).some(s => !!s[key]);
+      const entry = currentPlatform ? (all.selectors || {})[currentPlatform] : null;
+      ok = !!(entry && entry[key]);
     } else if (v === "queue.len>=1") {
       ok = (all.queue || []).length >= 1;
     } else if (v === "history.dryRunOk") {
