@@ -1,5 +1,5 @@
 import { MESSAGE_TYPES } from "../lib/messages.js";
-import { detectPlatformFromUrl, isWellKnownPlatform } from "../lib/platform.js";
+import { detectPlatformFromUrl, isWellKnownPlatform, displayName } from "../lib/platform.js";
 import { id as makeId } from "../lib/id.js";
 import { mountTimeControls } from "./time-controls.js";
 import { renderQueueList } from "./queue-list.js";
@@ -131,7 +131,7 @@ async function triggerPicker(type) {
     return;
   }
   window.__platform = currentPlatform;
-  badgeLabel.textContent = currentPlatform;
+  badgeLabel.textContent = displayName(currentPlatform);
   badge.dataset.platform = isWellKnownPlatform(currentPlatform) ? currentPlatform : "generic";
   controls.hidden = false;
   tc.render();
