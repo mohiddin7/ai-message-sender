@@ -3,12 +3,17 @@ export const defaultSelectors = {
   sendButton: "button[aria-label*='Send' i]"
 };
 
+// Claude shows a Stop button while streaming; when removed, response is done.
+export function isResponseStreaming(root = document) {
+  return !!root.querySelector("button[aria-label*='Stop' i], button[aria-label*='Stop generating' i]");
+}
+
 export function isResponseComplete(root = document) {
-  // Claude shows a stop button while streaming; when removed, response is done.
-  if (root.querySelector("button[aria-label*='Stop' i]")) return false;
   // Heuristic: a "Regenerate" or copy response control appears at the end.
+  // Kept for backwards compatibility (chain now uses isResponseStreaming).
+  if (root.querySelector("button[aria-label*='Stop' i]")) return false;
   if (root.querySelector("button[aria-label*='Regenerate' i], button[aria-label*='Retry' i]")) return true;
-  return true; // default permissive; will be re-validated by send button enabled state
+  return true;
 }
 
 export function detectReset(root = document) {

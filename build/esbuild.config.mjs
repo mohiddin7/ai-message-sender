@@ -28,6 +28,7 @@ for (const name of await readdir("icons")) {
 
 // Copy privacy policy
 await copyFile("privacy-policy.html", "dist/privacy-policy.html");
+await copyFile("privacy.css", "dist/privacy.css");
 
 // Generate a dist/manifest.json with paths rewritten relative to dist/
 // The source manifest.json references paths like "dist/background.js" and

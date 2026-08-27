@@ -616,3 +616,97 @@ main {
 .footer-link .i { color: currentColor; }
 .footer-coffee { color: var(--coffee); }
 .footer-coffee:hover { color: var(--coffee); background: var(--coffee-soft); }
+
+
+/* ==========================================================================
+   Tutorial overlay
+   Darkened page with a focus ring around the target element and a
+   floating tooltip card with prev / next / skip.
+   ========================================================================== */
+
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;  /* the backdrop is decorative; card+ring own clicks */
+}
+.tutorial-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: tut-fade var(--duration-base) var(--ease-out);
+}
+.tutorial-ring {
+  position: absolute;
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 0 0 2px var(--brand),
+    0 0 0 6px rgba(124, 58, 237, 0.25),
+    0 0 24px rgba(124, 58, 237, 0.35);
+  pointer-events: none;
+  transition: left var(--duration-base) var(--ease-out),
+              top var(--duration-base) var(--ease-out),
+              width var(--duration-base) var(--ease-out),
+              height var(--duration-base) var(--ease-out);
+  animation: tut-pulse 2.4s ease-in-out infinite;
+}
+.tutorial-card {
+  position: absolute;
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  padding: var(--space-4);
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  transition: left var(--duration-base) var(--ease-out),
+              top var(--duration-base) var(--ease-out);
+  animation: tut-card-in var(--duration-slow) var(--ease-out);
+}
+.tutorial-step {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.tutorial-title {
+  margin: 0 0 6px;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.tutorial-body {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  line-height: var(--leading-relaxed);
+}
+.tutorial-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+.tutorial-actions-right {
+  display: flex;
+  gap: var(--space-2);
+}
+@keyframes tut-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes tut-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px var(--brand), 0 0 0 6px rgba(124, 58, 237, 0.25), 0 0 24px rgba(124, 58, 237, 0.35); }
+  50%      { box-shadow: 0 0 0 2px var(--brand), 0 0 0 8px rgba(124, 58, 237, 0.18), 0 0 32px rgba(124, 58, 237, 0.45); }
+}
+@keyframes tut-card-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

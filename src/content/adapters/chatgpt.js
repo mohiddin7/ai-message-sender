@@ -3,6 +3,15 @@ export const defaultSelectors = {
   sendButton: "button[data-testid='send-button'], button[aria-label*='Send' i]"
 };
 
+export function isResponseStreaming(root = document) {
+  // ChatGPT shows a Stop button while streaming.
+  if (root.querySelector("button[aria-label*='Stop' i], button[data-testid='stop-button']")) return true;
+  // Some builds use a send button that's disabled while streaming.
+  const send = root.querySelector("button[data-testid='send-button']");
+  if (send && send.disabled) return true;
+  return false;
+}
+
 export function isResponseComplete(root = document) {
   if (root.querySelector("button[aria-label*='Stop' i]")) return false;
   return true;

@@ -38,7 +38,11 @@ if (window.__aiAutoSenderInit) {
           } else {
             try { alert(`Message sent to ${msg.platform}.`); } catch (_) {}
           }
-          sendResponse({ ok: result.steps.every(s => s.ok), steps: result.steps });
+          // Strip non-serializable fields (the `el` DOM element) before
+          // sending across the message boundary; chrome.runtime.sendResponse
+          // throws "Could not serialize message" otherwise.
+          const plainSteps = result.steps.map(({ el, ...rest }) => rest);
+          sendResponse({ ok: result.steps.every(s => s.ok), steps: plainSteps });
         })();
         return true;
       case MESSAGE_TYPES.SEND_NOTICE:

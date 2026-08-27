@@ -1,21 +1,106 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>AI Auto-Sender — Privacy Policy</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>AI Auto-Sender — Privacy Policy</title>
+  <link rel="stylesheet" href="ui-tokens.css">
+  <link rel="stylesheet" href="privacy.css">
+</head>
 <body>
-  <h1>AI Auto-Sender — Privacy Policy</h1>
-  <p><strong>Last updated:</strong> 2026-08-25</p>
-  <h2>What we store</h2>
-  <p>All data — your queued messages, taught selectors, and settings — is stored locally in your browser via <code>chrome.storage.local</code>. Selectors and settings may be synced across your devices via <code>chrome.storage.sync</code>, which is end-to-end your Google account and never seen by us.</p>
-  <h2>What we do not do</h2>
-  <ul>
-    <li>We do not make any network requests from the extension code.</li>
-    <li>We do not collect analytics, telemetry, or crash reports.</li>
-    <li>We do not read your past conversation history with any AI platform.</li>
-    <li>We do not sell or share any data — there is no "we" receiving it.</li>
-  </ul>
-  <h2>What you can do</h2>
-  <p>Use the Options page to wipe all data and to clear synced selectors.</p>
-  <h2>Contact</h2>
-  <p>Open an issue on the project's GitHub repository.</p>
+  <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></symbol>
+    <symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+  </svg>
+
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg class="i i-lg"><use href="#i-spark"/></svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">AI Auto-Sender</div>
+            <div class="brand-sub">Privacy</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero">
+        <h1 class="page-title">Privacy policy.</h1>
+        <p class="page-subtitle">Last updated 2026-08-25. Short version: nothing leaves your browser unless you turn on cross-device sync.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-shield"/></svg>
+            <h2>What we store</h2>
+          </div>
+          <p class="card-sub">All data — your queued messages, taught selectors, and settings — is stored locally in your browser via <code>chrome.storage.local</code>. Selectors and settings may be synced across your devices via <code>chrome.storage.sync</code>, which is end-to-end your Google account and never seen by us.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-check"/></svg> <span>Your queue and history (last 30 days, capped).</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span>Recurring rules you create.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span>CSS selectors you teach the picker.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span>Onboarded flag and UI preferences.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-x"/></svg>
+            <h2>What we do not do</h2>
+          </div>
+          <p class="card-sub">The extension code makes no network requests. The Chrome Web Store listing itself does not see your data.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not make any network requests from the extension code.</span></li>
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not collect analytics, telemetry, or crash reports.</span></li>
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not read your past conversation history with any AI platform.</span></li>
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not sell or share any data — there is no "we" receiving it.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-spark"/></svg>
+            <h2>What you can do</h2>
+          </div>
+          <p class="card-sub">Open the Options page to wipe all stored data, clear synced selectors, and reset the tutorial state.</p>
+        </div>
+        <div class="card-body">
+          <p class="prose">Use the Options page → Maintenance section → <em>Wipe local data</em> and <em>Clear synced selectors</em> to reset everything. Uninstalling the extension also removes all stored data.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <h2>Contact</h2>
+          </div>
+          <p class="card-sub">Open an issue on the project's GitHub repository.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <a id="privacy-link-back" class="footer-link" href="welcome.html">
+        <svg class="i"><use href="#i-house"/></svg>
+        <span>Welcome</span>
+      </a>
+    </footer>
+  </div>
 </body>
 </html>

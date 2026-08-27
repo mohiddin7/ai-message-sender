@@ -3,6 +3,11 @@ export const defaultSelectors = {
   sendButton: "button[aria-label*='Send' i]"
 };
 
+export function isResponseStreaming(root = document) {
+  // Gemini shows a Stop button while streaming.
+  return !!root.querySelector("button[aria-label*='Stop' i], button[aria-label*='Stop generating' i]");
+}
+
 export function isResponseComplete(root = document) {
   if (root.querySelector("button[aria-label*='Stop' i]")) return false;
   return true;

@@ -6,6 +6,7 @@ import { renderQueueList } from "./queue-list.js";
 import { mountRecurringForm } from "./recurring-form.js";
 import { scheduleAlarm } from "../background/scheduler.js";
 import { SPRITE_HTML } from "./sprite.js";
+import { startTutorial } from "./tutorial.js";
 
 // Inject the shared icon sprite so <use href="#i-..."> works
 document.getElementById("sprite-host").innerHTML = SPRITE_HTML;
@@ -59,7 +60,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 
 document.getElementById("open-welcome").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") }); });
 document.getElementById("open-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
-document.getElementById("open-coffee") .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
+document.getElementById("open-tutorial").addEventListener("click", e => { e.preventDefault(); startTutorial({ force: true }); });
 
 mountRecurringForm(document.getElementById("recurring-form"), () => ({ tabId: currentTab?.id, conversationUrl: currentTab?.url, text: document.getElementById("msg").value, platform: currentPlatform }));
 
@@ -96,4 +97,13 @@ async function triggerPicker(type) {
   controls.hidden = false;
   tc.render();
   renderQueueList(document.getElementById("queue-list"));
+
+  // Auto-fire the tutorial on first run (no settings.tutorialSeen flag yet).
+  // Welcome's wizard covers the "what is this" question; the popup tutorial
+  // covers the "how do I use these buttons" question. Users on a known
+  // platform are ready to use the buttons; fire the tour.
+  const { settings = {} } = await chrome.storage.local.get("settings");
+  if (!settings.tutorialSeen) {
+    setTimeout(() => startTutorial({ force: true }), 400);
+  }
 })();

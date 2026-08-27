@@ -37,9 +37,9 @@
   opacity: 1;
   transform: translateY(0);
 }
-#auto-sender-picker-label.is-valid { background: #4f46e5; }
-#auto-sender-picker-label.is-warn  { background: #b45309; }
-#auto-sender-picker-label.is-error { background: #b91c1c; }
+#auto-sender-picker-label.is-valid { background: var(--picker-brand, #4f46e5); }
+#auto-sender-picker-label.is-warn  { background: var(--picker-warn, #b45309); }
+#auto-sender-picker-label.is-error { background: var(--picker-error, #b91c1c); }
 #auto-sender-picker-label .picker-icon {
   width: 16px; height: 16px; flex-shrink: 0;
   fill: none; stroke: currentColor; stroke-width: 1.75;
@@ -54,8 +54,8 @@
 }
 
 /* Picker hover outlines applied to the target element by JS. */
-.picker-hover-valid { outline: 2px solid #4f46e5 !important; outline-offset: 2px !important; }
-.picker-hover-error { outline: 2px solid #dc2626 !important; outline-offset: 2px !important; }
+.picker-hover-valid { outline: 2px solid var(--picker-brand, #4f46e5) !important; outline-offset: 2px !important; }
+.picker-hover-error { outline: 2px solid var(--picker-error, #b91c1c) !important; outline-offset: 2px !important; }
 
 /* The cursor: crosshair override (everything is pickable except our labels). */
 .picker-active, .picker-active * { cursor: crosshair !important; }
