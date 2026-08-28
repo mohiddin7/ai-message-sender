@@ -42,16 +42,6 @@ body {
   align-items: center;
   gap: var(--space-3);
 }
-/* Groups the nav and the sync pill together on the right side of the
-   header, so .page-header-inner's space-between still puts brand on the
-   far left and everything else hugging the far right — same header
-   layout as welcome/help/privacy, which don't have a third header-actions
-   element and so don't need this wrapper. */
-.page-header-right {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
 .page-nav {
   display: flex;
   align-items: center;
@@ -104,12 +94,6 @@ body {
   font-size: var(--text-xs);
   color: var(--fg-muted);
   margin-top: 2px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 
 .sync-pill {
