@@ -7,11 +7,18 @@
 // custom grid replaces the native picker entirely: the user types 5 numbers
 // and the only path that commits is the Confirm button.
 
+// Delay-mode chips must hold a pure duration (ms to add to Date.now()) —
+// saveBtn's click handler in popup.js does
+// `scheduledAt = mode === "delay" ? Date.now() + value : value`. A
+// "Tomorrow 9am" entry used to store an *absolute* epoch timestamp here
+// instead (via computePresetMs -> tomorrowAt), so Date.now() + value
+// added two absolute timestamps together — a nonsense date thousands of
+// years out. Removed rather than fixed in place: At-time mode already
+// has its own "Tomorrow 9am" preset that's built for absolute values.
 const DELAY_CHIPS = [
   { label: "+5m",  ms: 5 * 60_000 },
   { label: "+15m", ms: 15 * 60_000 },
-  { label: "+1h",  ms: 60 * 60_000 },
-  { label: "Tomorrow 9am", ms: "tomorrow-9" }
+  { label: "+1h",  ms: 60 * 60_000 }
 ];
 
 const ABS_PRESETS = [
@@ -42,7 +49,7 @@ export function mountTimeControls(root, { onChange }) {
       // rest, so there was no indication which one was picked.
       if (c.ms === value) b.classList.add("is-active");
       b.addEventListener("click", () => {
-        value = typeof c.ms === "number" ? c.ms : computePresetMs(c.ms);
+        value = c.ms;
         onChange({ mode, value });
         render();
       });
@@ -302,11 +309,6 @@ export function mountTimeControls(root, { onChange }) {
     setResetSuggestion,
     get value() { return { mode, value }; }
   };
-}
-
-function computePresetMs(kind) {
-  if (kind === "tomorrow-9") return tomorrowAt(9, 0);
-  return Date.now();
 }
 
 function tomorrowAt(h, m) {

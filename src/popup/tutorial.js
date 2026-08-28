@@ -120,6 +120,8 @@ function mountOverlay(onFinish) {
 
   let idx = 0;
   let disposed = false;
+  let currentTarget = null;
+  let scrollQueued = false;
 
   function placeAt(target) {
     const r = target.getBoundingClientRect();
@@ -158,12 +160,32 @@ function mountOverlay(onFinish) {
     prevBtn.hidden = idx === 0;
     nextBtn.textContent = idx === STEPS.length - 1 ? "Done" : "Next";
 
+    currentTarget = target;
     placeAt(target);
   }
+
+  // Several step targets (#msg, #saveBtn, .queue-section) live inside
+  // <main>, which scrolls independently of the popup window. placeAt()
+  // reads getBoundingClientRect() once per step — without this, scrolling
+  // after a step loads leaves the ring at its original screen position
+  // while the real target moves, so the focus ring drifts off the
+  // element it's meant to be highlighting. scroll doesn't bubble, so this
+  // listens in the capture phase to catch it from any scrollable
+  // ancestor; rAF-coalesced so fast scroll events don't spam layout reads.
+  function onScroll() {
+    if (disposed || !currentTarget || scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(() => {
+      scrollQueued = false;
+      if (!disposed && currentTarget) placeAt(currentTarget);
+    });
+  }
+  document.addEventListener("scroll", onScroll, true);
 
   function finish() {
     if (disposed) return;
     disposed = true;
+    document.removeEventListener("scroll", onScroll, true);
     root.remove();
     chrome.storage.local.get(STORAGE_KEY).then(({ settings = {} } = {}) => {
       chrome.storage.local.set({ settings: { ...settings, [SEEN_FLAG]: true } });

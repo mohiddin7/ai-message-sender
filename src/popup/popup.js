@@ -65,12 +65,20 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 
 document.getElementById("open-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
 document.getElementById("open-tutorial").addEventListener("click", e => { e.preventDefault(); startTutorial({ force: true }); });
-document.getElementById("open-privacy").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("privacy-policy.html") }); });
 document.getElementById("open-coffee").addEventListener("click", e => {
   e.preventDefault();
   chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" });
 });
+// Two entry points to the same help.html — the header icon (compact,
+// always visible) and this labeled footer link (more discoverable).
+// Privacy is still one click away from there, not removed — just no
+// longer a standalone footer shortcut now that Help covers it plus FAQ,
+// features, and limitations in one place.
 document.getElementById("open-help").addEventListener("click", e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL("help.html") });
+});
+document.getElementById("open-help-footer").addEventListener("click", e => {
   e.preventDefault();
   chrome.tabs.create({ url: chrome.runtime.getURL("help.html") });
 });
