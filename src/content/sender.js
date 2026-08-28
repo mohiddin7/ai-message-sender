@@ -1,22 +1,9 @@
 import { getAdapter } from "./adapters/index.js";
 
-const STEPS = ["focusTab", "findInput", "writeText", "findButton", "clickSend"];
-
 function pickFirstSelector(selectors, fallback) {
   if (selectors?.input) return selectors.input;
   if (fallback?.input)  return fallback.input;
   return null;
-}
-
-export async function focusTab(tabId) {
-  try {
-    const tab = await chrome.tabs.get(tabId);
-    await chrome.windows.update(tab.windowId, { focused: true });
-    await chrome.tabs.update(tabId, { active: true });
-    return { ok: true, step: "focusTab", tabId };
-  } catch (e) {
-    return { ok: false, step: "focusTab", reason: String(e?.message || e) };
-  }
 }
 
 export function findInput(root, selectors, platform) {
@@ -42,6 +29,11 @@ export function findSendButton(root, selectors, platform) {
   return { ok: false, step: "findButton", reason: "no send button" };
 }
 
+function readFieldText(el) {
+  if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") return el.value;
+  return el.textContent || "";
+}
+
 export function writeText(el, text) {
   try {
     el.focus();
@@ -62,6 +54,28 @@ export function writeText(el, text) {
   }
 }
 
+// Clears a field back to empty. writeText()'s "delete current selection"
+// doesn't help here since nothing is selected by default — this actually
+// selects everything first. Used by the tour demo to wipe the placeholder
+// text it types in just to make the send button render.
+export function clearField(el) {
+  try {
+    el.focus();
+    if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+      setter.call(el, "");
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    } else {
+      document.execCommand("selectAll", false);
+      document.execCommand("delete", false);
+      el.dispatchEvent(new InputEvent("input", { bubbles: true, cancelable: true, inputType: "deleteContentBackward" }));
+    }
+    return { ok: true, step: "clearField" };
+  } catch (e) {
+    return { ok: false, step: "clearField", reason: String(e?.message || e) };
+  }
+}
+
 export function clickSend(el) {
   try {
     el.removeAttribute("disabled");
@@ -75,10 +89,8 @@ export function clickSend(el) {
   }
 }
 
-export async function executeSend({ tabId, text, platform, selectors, root = document }) {
+export async function executeSend({ text, platform, selectors, root = document }) {
   const steps = [];
-  const focused = await focusTab(tabId); steps.push(focused);
-  if (!focused.ok) return { steps };
   const input = findInput(root, selectors, platform); steps.push(input);
   if (!input.ok) return { steps };
   const written = writeText(input.el, text); steps.push(written);
@@ -93,16 +105,24 @@ export async function executeSend({ tabId, text, platform, selectors, root = doc
 
 export async function dryRunSend(args) {
   // Same as executeSend, but never clicks the send button.
-  const { tabId, text, platform, selectors, root = document } = args;
+  const { text, platform, selectors, root = document } = args;
   const steps = [];
-  const focused = await focusTab(tabId); steps.push(focused);
-  if (!focused.ok) return { steps };
   const input = findInput(root, selectors, platform); steps.push(input);
   if (!input.ok) return { steps };
+  // writeText() on a contenteditable field inserts at the cursor rather
+  // than replacing — deliberate, so a real send appends onto text the
+  // user already started typing instead of clobbering it. A dry run isn't
+  // a real send though: it's supposed to be non-destructive. Without
+  // restoring the field afterward, its write is a permanent side effect —
+  // if the same item later really sends, that second writeText() appends
+  // onto this dry run's leftover text and the message goes out doubled.
+  const original = readFieldText(input.el);
   const written = writeText(input.el, text); steps.push(written);
   if (!written.ok) return { steps };
   await new Promise(r => setTimeout(r, 600));
   const button = findSendButton(root, selectors, platform); steps.push(button);
   // Intentionally do NOT call clickSend
+  clearField(input.el); // writeText(el, "") wouldn't clear it — nothing's selected to delete
+  if (original) writeText(input.el, original); // put back what was really there
   return { steps };
 }

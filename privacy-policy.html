@@ -1,21 +1,160 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>AI Auto-Sender — Privacy Policy</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>AI Message Sender — Privacy Policy</title>
+  <link rel="stylesheet" href="ui-tokens.css">
+  <link rel="stylesheet" href="privacy.css">
+</head>
 <body>
-  <h1>AI Auto-Sender — Privacy Policy</h1>
-  <p><strong>Last updated:</strong> 2026-08-25</p>
-  <h2>What we store</h2>
-  <p>All data — your queued messages, taught selectors, and settings — is stored locally in your browser via <code>chrome.storage.local</code>. Selectors and settings may be synced across your devices via <code>chrome.storage.sync</code>, which is end-to-end your Google account and never seen by us.</p>
-  <h2>What we do not do</h2>
-  <ul>
-    <li>We do not make any network requests from the extension code.</li>
-    <li>We do not collect analytics, telemetry, or crash reports.</li>
-    <li>We do not read your past conversation history with any AI platform.</li>
-    <li>We do not sell or share any data — there is no "we" receiving it.</li>
-  </ul>
-  <h2>What you can do</h2>
-  <p>Use the Options page to wipe all data and to clear synced selectors.</p>
-  <h2>Contact</h2>
-  <p>Open an issue on the project's GitHub repository.</p>
+  <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-logo" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M20.5 3.5 3 11l9 10.5-2-9Z"/>
+      <path d="M20.5 3.5 10 12.5l2 9Z" fill-opacity="0.55"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-wand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 12-12M14 6l4 4"/><path d="M16 4v2M20 4v2M18 3v3M4 14v2M8 14v2M6 13v3"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2 20h20L12 4Z"/><path d="M12 10v4M12 17.5v.5"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17v11h-17z"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/><path d="M15 4h5v5"/><path d="M20 4 11 13"/></symbol>
+    <symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1.5 1-1.5 2.2"/><path d="M12 17.5h.01"/></symbol>
+  </svg>
+
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg class="i i-lg"><use href="#i-logo"/></svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">AI Message Sender</div>
+            <div class="brand-sub">Privacy</div>
+          </div>
+        </div>
+        <nav class="page-nav" aria-label="Site">
+          <a class="page-nav-link" href="welcome.html">Home</a>
+          <a class="page-nav-link" href="options.html">History</a>
+          <a class="page-nav-link" href="help.html">Help</a>
+          <a class="page-nav-link is-current" href="privacy-policy.html" aria-current="page">Privacy</a>
+          <a class="page-nav-link" href="https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" target="_blank" rel="noopener">Coffee</a>
+          <button id="nav-tour-header" class="page-nav-link" type="button">Tour</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero">
+        <h1 class="page-title">Privacy policy.</h1>
+        <p class="page-subtitle">Last updated 2026-08-27. Short version: nothing leaves your browser unless you turn on cross-device sync. Works on any webpage with a text input and a send button — not limited to Claude, ChatGPT, or Gemini.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-shield"/></svg>
+            <h2>What we store</h2>
+          </div>
+          <p class="card-sub">All data — your queued messages, taught selectors, and settings — is stored locally in your browser via <code>chrome.storage.local</code>. Selectors and settings may be synced across your devices via <code>chrome.storage.sync</code>, which is end-to-end your Google account and never seen by us.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-check"/></svg> <span>Your queue and history (last 30 days, capped).</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span>Recurring rules you create.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span>CSS selectors you teach the picker.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span>Onboarded flag and UI preferences.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card is-negative">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-x"/></svg>
+            <h2>What we do not do</h2>
+          </div>
+          <p class="card-sub">The extension code makes no network requests. The Chrome Web Store listing itself does not see your data.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not make any network requests from the extension code.</span></li>
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not collect analytics, telemetry, or crash reports.</span></li>
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not read your past conversation history with any AI platform.</span></li>
+            <li><svg class="i"><use href="#i-x"/></svg> <span>We do not sell or share any data — there is no "we" receiving it.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card is-warn">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-alert"/></svg>
+            <h2>Limitations</h2>
+          </div>
+          <p class="card-sub">Scheduled sends depend on your browser, not a server — a few real constraints follow from that.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>The tab you scheduled a message in must stay open. Closing it cancels that send — you'll see it marked "tab lost" in History.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Chrome itself must be running. If you fully quit Chrome, queued sends fire late once you reopen it, not retroactively at the original time.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Your device just needs to be awake — a locked screen is fine, sleep or hibernate is not.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-wand"/></svg>
+            <h2>What you can do</h2>
+          </div>
+          <p class="card-sub">Open the Options page to wipe all stored data, clear synced selectors, and reset the tutorial state.</p>
+        </div>
+        <div class="card-body">
+          <p class="prose">Use the Options page → Maintenance section → <em>Wipe local data</em> and <em>Clear synced selectors</em> to reset everything. Uninstalling the extension also removes all stored data.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <h2>Contact</h2>
+          </div>
+          <p class="card-sub">Found a bug, or something not working right? Both routes below reach the same person.</p>
+        </div>
+        <div class="card-body">
+          <div class="contact-links">
+            <a class="contact-link" href="https://github.com/mohiddin7/ai-message-sender/issues" target="_blank" rel="noopener">
+              <svg class="i"><use href="#i-external"/></svg>
+              <span>Report an issue on GitHub</span>
+            </a>
+            <a class="contact-link" href="mailto:support@warmhop.com">
+              <svg class="i"><use href="#i-mail"/></svg>
+              <span>support@warmhop.com</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <div class="footer-links">
+        <a class="footer-link" href="https://github.com/mohiddin7/ai-message-sender" target="_blank" rel="noopener">
+          <svg class="i"><use href="#i-external"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="footer-link" href="mailto:support@warmhop.com">
+          <svg class="i"><use href="#i-mail"/></svg>
+          <span>support@warmhop.com</span>
+        </a>
+      </div>
+      <div class="footer-copyright">&copy; 2026 AI Message Sender</div>
+    </footer>
+  </div>
+
+  <script type="module" src="privacy.js"></script>
 </body>
 </html>

@@ -3,8 +3,19 @@ import { queueStore } from "./queue-store.js";
 import { scheduleAlarm, clearAlarm, onAlarm } from "./scheduler.js";
 import { syncStore } from "./sync-store.js";
 import { expandAll } from "./recurring-expander.js";
-import { notifications } from "./notifications.js";
+import { focusTargetTab } from "./focus-tab.js";
 import { log } from "../lib/log.js";
+
+async function notice(tabId, kind, summary) {
+  // In-page dialog delivery (replaces the chrome.notifications OS toast).
+  // Best-effort: if the tab is gone or the content script can't be reached,
+  // we drop the notice silently — the queue item's status is the durable signal.
+  try {
+    await sendViaContentScript(tabId, { action: MESSAGE_TYPES.SEND_NOTICE, kind, summary });
+  } catch (e) {
+    log.warn("bg-msg", "send notice failed", e);
+  }
+}
 
 async function resolveTargetTab(item) {
   try {
@@ -12,29 +23,30 @@ async function resolveTargetTab(item) {
     return { kind: "ok", tab };
   } catch {
     await queueStore.update(item.id, { status: "tab-lost" });
-    await notifications.notify({
-      id: `tab-lost-${item.id}`,
-      title: "Target tab closed",
-      message: "Re-target or cancel this queue item.",
-      buttons: [{ title: "Re-target" }, { title: "Cancel" }]
-    });
+    await notice(item.tabId, "tab-lost", `Target tab closed for queued message.\n\n"${item.text}"\n\nRe-target or cancel the queue item.`);
     return { kind: "lost" };
   }
 }
 
 async function sendViaContentScript(tabId, msg) {
+  // First, try to ensure the content script is injected (in case the tab was opened
+  // before the extension was installed, or after a navigation to a different origin).
+  try {
+    await chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
+  } catch (_) {
+    // ignore — content script may already be there, or this tab may be sandboxed
+  }
   try {
     return await chrome.tabs.sendMessage(tabId, msg, { frameId: 0 });
   } catch (err) {
-    // Content script not responding or other runtime error
-    return { ok: false, steps: [{ step: "focusTab", reason: "content script not responding" }] };
+    return { ok: false, steps: [{ step: "sendMessage", reason: `content script not responding: ${err.message}` }] };
   }
 }
 
 export function wireBackground() {
   chrome.runtime.onInstalled.addListener(async ({ reason }) => {
     if (reason === "install") {
-      chrome.tabs.create({ url: chrome.runtime.getURL("src/welcome/welcome.html") });
+      chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
     }
     await queueStore.migrate();
     await syncStore.hydrateFromSync();
@@ -51,17 +63,32 @@ export function wireBackground() {
     if (target.kind !== "ok") return { status: "tab-lost" };
 
     if (item.mode === "chain") {
-      // Arm the watcher; this branch fires when CHAIN_READY arrives from content.
-      const tabId = target.tab.id;
-      await chrome.tabs.sendMessage(tabId, { action: MESSAGE_TYPES.CHAIN_READY, platform: item.platform, itemId: item.id });
-      return { status: "pending" };
+      // Chain mode: CHAIN_READY from content scheduled a 500ms alarm (see the
+      // CHAIN_READY case below). When that alarm fires, perform the real send
+      // — the watcher is already done, do not re-arm it.
+      const selectors = (await syncStore.getSelectors())[item.platform];
+      const msg = { action: MESSAGE_TYPES.INJECT_AND_SEND, text: item.text, platform: item.platform, selectors };
+      const focused = await focusTargetTab(item.tabId);
+      const result = await sendViaContentScript(item.tabId, msg);
+      result.steps = [focused, ...(result.steps || [])];
+      if (!focused.ok) result.ok = false;
+      const ok = result.steps.every(s => s.ok);
+      if (ok) {
+        await notice(item.tabId, "sent", `Message sent to ${item.platform}.`);
+        return { status: "sent" };
+      }
+      const failedStep = result.steps.find(s => !s.ok);
+      return { status: "failed", lastError: `${failedStep?.step}: ${failedStep?.reason}` };
     }
     const selectors = (await syncStore.getSelectors())[item.platform];
-    const msg = { action: MESSAGE_TYPES.INJECT_AND_SEND, tabId: item.tabId, text: item.text, platform: item.platform, selectors };
+    const msg = { action: MESSAGE_TYPES.INJECT_AND_SEND, text: item.text, platform: item.platform, selectors };
+    const focused = await focusTargetTab(item.tabId);
     const result = await sendViaContentScript(item.tabId, msg);
+    result.steps = [focused, ...(result.steps || [])];
+    if (!focused.ok) result.ok = false;
     const ok = result.steps.every(s => s.ok);
     if (ok) {
-      await notifications.notify({ id: `sent-${item.id}`, title: "Message sent", message: `Sent to ${item.platform}.` });
+      await notice(item.tabId, "sent", `Message sent to ${item.platform}.`);
       return { status: "sent" };
     }
     const failedStep = result.steps.find(s => !s.ok);
@@ -71,6 +98,12 @@ export function wireBackground() {
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     (async () => {
       switch (msg.action) {
+        case MESSAGE_TYPES.PICKER_CONFIRMED: {
+          // The content script already shows the v4-style in-page alert.
+          // This handler is here for the background to log the pick; no toast needed.
+          log.info("bg-msg", "picker confirmed", msg.type, msg.platform, msg.selector);
+          break;
+        }
         case MESSAGE_TYPES.CHAIN_READY: {
           const item = await queueStore.getById(msg.itemId);
           if (!item) return;
@@ -83,15 +116,14 @@ export function wireBackground() {
           const item = await queueStore.getById(msg.itemId);
           if (!item) return;
           const selectors = (await syncStore.getSelectors())[item.platform];
-          const dryMsg = { action: MESSAGE_TYPES.INJECT_AND_SEND, tabId: item.tabId, text: item.text, platform: item.platform, selectors, dryRun: true };
+          const focused = await focusTargetTab(item.tabId);
+          const dryMsg = { action: MESSAGE_TYPES.INJECT_AND_SEND, text: item.text, platform: item.platform, selectors, dryRun: true };
           const result = await sendViaContentScript(item.tabId, dryMsg);
-          const ok = result.steps.every(s => s.ok);
-          await queueStore.update(item.id, { status: ok ? "dry-run-ok" : "dry-run-fail", lastError: ok ? null : JSON.stringify(result.steps.find(s => !s.ok)) });
-          await notifications.notify({
-            id: `dryrun-${item.id}`,
-            title: ok ? "Dry run: OK" : "Dry run: FAIL",
-            message: result.steps.map(s => `${s.step}:${s.ok ? "✓" : "✗"}`).join(" ")
-          });
+          const steps = [focused, ...(result.steps || [])];
+          const ok = focused.ok && steps.every(s => s.ok);
+          await queueStore.update(item.id, { status: ok ? "dry-run-ok" : "dry-run-fail", lastError: ok ? null : JSON.stringify(steps.find(s => !s.ok)) });
+          // The content script's INJECT_AND_SEND handler shows an in-page alert
+          // with the dry-run result; no need to send a separate notice here.
           break;
         }
         case MESSAGE_TYPES.CANCEL_ITEM: {

@@ -1,6 +1,6 @@
 import { id as makeId } from "../lib/id.js";
 import { log } from "../lib/log.js";
-import { detectPlatformFromUrl, isKnownPlatform } from "../lib/platform.js";
+import { detectPlatformFromUrl, isKnownPlatform, hostnameForPlatform } from "../lib/platform.js";
 
 const KEYS = {
   QUEUE:     "queue",
@@ -103,11 +103,34 @@ export const queueStore = {
     const selectors = (await this.getSelectors());
     let selectorsChanged = false;
 
+    // One-time rename: in v5, well-known platforms were keyed by short name (claude, gpt, gemini).
+    // After v5.1 they are keyed by hostname. Migrate selectors and any pre-existing queue/recurring items.
+    {
+      const remap = { claude: "claude.ai", gpt: "chatgpt.com", gemini: "gemini.google.com" };
+      let selChanged = false;
+      for (const [from, to] of Object.entries(remap)) {
+        if (selectors[from]) {
+          selectors[to] = { ...(selectors[to] || {}), ...selectors[from] };
+          delete selectors[from];
+          selChanged = true;
+        }
+      }
+      if (selChanged) selectorsChanged = true;
+
+      const needsRename = (x) => x && x.platform && remap[x.platform];
+      const renames = (arr) => arr.map(x => needsRename(x) ? { ...x, platform: remap[x.platform] } : x);
+
+      const queue = (await getKey(KEYS.QUEUE)) || [];
+      if (queue.some(needsRename)) await setKey(KEYS.QUEUE, renames(queue));
+      const recurring = (await getKey(KEYS.RECURRING)) || [];
+      if (recurring.some(needsRename)) await setKey(KEYS.RECURRING, renames(recurring));
+    }
+
     for (const [plat, msgKey, timeKey, inputKey, buttonKey] of LEGACY_PAIRS) {
       if (all[msgKey] && all[timeKey]) {
         const item = {
           id: makeId("q"),
-          platform: plat,
+          platform: hostnameForPlatform(plat) || plat,
           tabId: null,
           conversationUrl: null,
           text: all[msgKey],
@@ -123,8 +146,9 @@ export const queueStore = {
         await chrome.storage.local.remove([msgKey, timeKey]);
         migrated++;
       }
-      if (all[inputKey])  { selectors[plat] = { ...(selectors[plat] || {}), input: all[inputKey] };       selectorsChanged = true; }
-      if (all[buttonKey]) { selectors[plat] = { ...(selectors[plat] || {}), sendButton: all[buttonKey] };  selectorsChanged = true; }
+      const host = hostnameForPlatform(plat) || plat;
+      if (all[inputKey])  { selectors[host] = { ...(selectors[host] || {}), input: all[inputKey] };       selectorsChanged = true; }
+      if (all[buttonKey]) { selectors[host] = { ...(selectors[host] || {}), sendButton: all[buttonKey] };  selectorsChanged = true; }
       if (all[inputKey] || all[buttonKey]) {
         await chrome.storage.local.remove([inputKey, buttonKey].filter(Boolean));
       }

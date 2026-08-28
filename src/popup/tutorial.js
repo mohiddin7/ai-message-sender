@@ -1,0 +1,246 @@
+// Tutorial overlay — a focus-style walkthrough for the popup.
+//
+// Usage: import { startTutorial } from "./tutorial.js" and call it from
+// popup.js when the user clicks the "Show tutorial" footer link, or
+// automatically on first install.
+//
+// The overlay:
+//
+//  - darkens the rest of the page (backdrop with a "punch through" hole
+//    around the highlighted element)
+//  - draws a focus ring around the target
+//  - shows a floating tooltip card with title, body, prev/next/done
+//  - moves the tooltip to stay visible when the target is at an edge
+//
+// State: writes chrome.storage.local.settings.tutorialSeen = true when
+// the user finishes or skips. The on-demand re-launch clears that flag
+// so the next time the popup opens it doesn't auto-fire.
+
+import { MESSAGE_TYPES } from "../lib/messages.js";
+
+// Only used when autoDrive is set (welcome-page-launched tour, on a real
+// chatgpt.com tab) — filled into the popup's own prompt field, and later
+// into the real queued/dry-run/sent item.
+const DEMO_PROMPT_TEXT = "This is a demo prompt from the AI Message Sender tour. It'll really be sent in 5 minutes so you can see the whole flow.";
+
+const STEPS = [
+  {
+    id: "platform",
+    sel: "#badge",
+    title: "This pill is the platform",
+    body: "When you open the popup from a Claude, ChatGPT, or Gemini tab, this shows the platform name. The whole extension is keyed to that tab.",
+    placement: "below"
+  },
+  {
+    id: "modes",
+    sel: ".segmented",
+    title: "Pick a time mode",
+    body: "Delay sends after a relative offset. At time fires at an exact moment. Reset scans the page for a 'resets in 2 hours' notice. Chain sends ~500ms after this tab's current response ends.",
+    bodyAuto: "I've picked Delay, 5 minutes — enough time to show you the whole flow for real.",
+    placement: "below",
+    // Auto-clicks the same segment button a user would — reuses popup.js's
+    // own click listener (class toggling + tc.setMode), so this is exactly
+    // what a real click does. Delay mode's first chip is already +5m.
+    auto: () => document.querySelector('[data-mode="delay"]')?.click()
+  },
+  {
+    id: "picker",
+    sel: ".picker-row",
+    title: "Teach the page",
+    body: "Click Teach input, then click the prompt box on the page. Click Teach send, then click the send button. The picker picks a stable selector for you.",
+    bodyAuto: "Watch the page — I'm pointing at the real input, then the real send button, and mapping both.",
+    placement: "below",
+    auto: async ({ autoDrive, actions }) => {
+      if (!autoDrive) return;
+      try {
+        await chrome.tabs.sendMessage(autoDrive.tabId, { action: MESSAGE_TYPES.TOUR_DEMO_TEACH, platform: autoDrive.platform });
+      } catch (_) { /* tab navigated away or content script not there — skip, non-fatal */ }
+      actions?.refreshPickerStatus?.();
+    }
+  },
+  {
+    id: "prompt",
+    sel: "#msg",
+    title: "Type your prompt",
+    body: "Write what you want the AI to receive. You can queue several at once.",
+    bodyAuto: "I've filled in a demo prompt below.",
+    placement: "above",
+    auto: () => {
+      const el = document.getElementById("msg");
+      if (el && !el.value) el.value = DEMO_PROMPT_TEXT;
+    }
+  },
+  {
+    id: "queue",
+    sel: "#saveBtn",
+    title: "Queue it",
+    body: "The extension schedules the send. The tab can be in the background — it'll focus when the moment comes.",
+    bodyAuto: "Queuing it now — 5 minutes, then I'll dry-run it so you can see what a real send looks like. In 5 real minutes, this demo message actually sends.",
+    placement: "above",
+    auto: async ({ actions }) => {
+      const item = await actions?.queuePrompt?.();
+      if (item?.id) {
+        try { await chrome.runtime.sendMessage({ action: MESSAGE_TYPES.DRY_RUN_ITEM, itemId: item.id }); } catch (_) {}
+      }
+    }
+  },
+  {
+    id: "queue-list",
+    sel: ".queue-section",
+    title: "Your queue lives here",
+    body: "Pending items show a status-colored left border. The play icon dry-runs an item; the x cancels it. Open History from the footer for the full 30-day log.",
+    placement: "above"
+  }
+];
+
+const STORAGE_KEY = "settings";
+const SEEN_FLAG = "tutorialSeen";
+
+export async function startTutorial({ onFinish, force = false, autoDrive = null, actions = null } = {}) {
+  if (!force) {
+    const { settings = {} } = await chrome.storage.local.get(STORAGE_KEY);
+    if (settings[SEEN_FLAG]) return;
+  }
+  const overlay = mountOverlay(onFinish, autoDrive, actions);
+  document.body.appendChild(overlay.root);
+  // Wait one frame for layout, then position the first step
+  await new Promise(r => requestAnimationFrame(r));
+  overlay.go(0);
+  return overlay;
+}
+
+function mountOverlay(onFinish, autoDrive, actions) {
+  const root = document.createElement("div");
+  root.className = "tutorial-overlay";
+  root.setAttribute("role", "dialog");
+  root.setAttribute("aria-modal", "true");
+  root.setAttribute("aria-label", "Tutorial");
+
+  // Backdrop SVG: a single rect with a punched-through "hole" for the
+  // focus ring. Implemented as a path with a hollow cutout using even-odd
+  // fill rule. Repositioned per step.
+  const backdrop = document.createElement("div");
+  backdrop.className = "tutorial-backdrop";
+  root.appendChild(backdrop);
+
+  const ring = document.createElement("div");
+  ring.className = "tutorial-ring";
+  root.appendChild(ring);
+
+  const card = document.createElement("div");
+  card.className = "tutorial-card";
+  card.innerHTML = `
+    <div class="tutorial-step">Step 1 of ${STEPS.length}</div>
+    <h3 class="tutorial-title"></h3>
+    <p class="tutorial-body"></p>
+    <div class="tutorial-actions">
+      <button class="btn btn-ghost btn-sm" data-act="skip" type="button">Skip</button>
+      <div class="tutorial-actions-right">
+        <button class="btn btn-ghost btn-sm" data-act="prev" type="button" hidden>Back</button>
+        <button class="btn btn-primary btn-sm" data-act="next" type="button">Next</button>
+      </div>
+    </div>
+  `;
+  root.appendChild(card);
+
+  const stepEl   = card.querySelector(".tutorial-step");
+  const titleEl  = card.querySelector(".tutorial-title");
+  const bodyEl   = card.querySelector(".tutorial-body");
+  const prevBtn  = card.querySelector('[data-act="prev"]');
+  const nextBtn  = card.querySelector('[data-act="next"]');
+  const skipBtn  = card.querySelector('[data-act="skip"]');
+
+  let idx = 0;
+  let disposed = false;
+  let currentTarget = null;
+  let scrollQueued = false;
+  const firedSteps = new Set(); // each step's auto() runs once, going forward only
+
+  function placeAt(target) {
+    const r = target.getBoundingClientRect();
+    const pad = 6;
+    ring.style.left   = (r.left - pad)   + "px";
+    ring.style.top    = (r.top - pad)    + "px";
+    ring.style.width  = (r.width + pad * 2)  + "px";
+    ring.style.height = (r.height + pad * 2) + "px";
+
+    const step = STEPS[idx];
+    // Default placement below
+    let top = r.bottom + 16;
+    let left = r.left + r.width / 2 - 180;
+    if (step.placement === "above") {
+      top = r.top - 16 - card.offsetHeight;
+    }
+    // Clamp to viewport
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    left = Math.max(8, Math.min(left, vw - card.offsetWidth - 8));
+    top  = Math.max(8, Math.min(top,  vh - card.offsetHeight - 8));
+    card.style.left = left + "px";
+    card.style.top  = top + "px";
+  }
+
+  function go(n) {
+    if (disposed) return;
+    idx = Math.max(0, Math.min(n, STEPS.length - 1));
+    const step = STEPS[idx];
+    const target = document.querySelector(step.sel);
+    if (!target) { finish(); return; }
+
+    stepEl.textContent  = `Step ${idx + 1} of ${STEPS.length}`;
+    titleEl.textContent = step.title;
+    bodyEl.textContent  = (autoDrive && step.bodyAuto) ? step.bodyAuto : step.body;
+    prevBtn.hidden = idx === 0;
+    nextBtn.textContent = idx === STEPS.length - 1 ? "Done" : "Next";
+
+    currentTarget = target;
+    placeAt(target);
+
+    if (autoDrive && step.auto && !firedSteps.has(step.id)) {
+      firedSteps.add(step.id);
+      Promise.resolve(step.auto({ autoDrive, actions })).catch(() => {});
+    }
+  }
+
+  // Several step targets (#msg, #saveBtn, .queue-section) live inside
+  // <main>, which scrolls independently of the popup window. placeAt()
+  // reads getBoundingClientRect() once per step — without this, scrolling
+  // after a step loads leaves the ring at its original screen position
+  // while the real target moves, so the focus ring drifts off the
+  // element it's meant to be highlighting. scroll doesn't bubble, so this
+  // listens in the capture phase to catch it from any scrollable
+  // ancestor; rAF-coalesced so fast scroll events don't spam layout reads.
+  function onScroll() {
+    if (disposed || !currentTarget || scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(() => {
+      scrollQueued = false;
+      if (!disposed && currentTarget) placeAt(currentTarget);
+    });
+  }
+  document.addEventListener("scroll", onScroll, true);
+
+  function finish() {
+    if (disposed) return;
+    disposed = true;
+    document.removeEventListener("scroll", onScroll, true);
+    root.remove();
+    chrome.storage.local.get(STORAGE_KEY).then(({ settings = {} } = {}) => {
+      chrome.storage.local.set({ settings: { ...settings, [SEEN_FLAG]: true } });
+    });
+    onFinish && onFinish();
+  }
+
+  prevBtn.addEventListener("click", () => go(idx - 1));
+  nextBtn.addEventListener("click", () => idx === STEPS.length - 1 ? finish() : go(idx + 1));
+  skipBtn.addEventListener("click", finish);
+
+  document.addEventListener("keydown", function onKey(e) {
+    if (disposed) { document.removeEventListener("keydown", onKey); return; }
+    if (e.key === "Escape") finish();
+    else if (e.key === "ArrowRight") idx === STEPS.length - 1 ? finish() : go(idx + 1);
+    else if (e.key === "ArrowLeft") go(idx - 1);
+  });
+
+  return { root, go, finish, get index() { return idx; } };
+}

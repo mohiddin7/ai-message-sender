@@ -5,6 +5,9 @@ const SYNC_KEYS = { SELECTORS: "selectors", SETTINGS: "settings" };
 const BANNER_FLAG = "sync_hydrated_banner_seen";
 
 export const syncStore = {
+  async getSelectors() {
+    return await queueStore.getSelectors();
+  },
   async setSelectors(s) {
     await queueStore.setSelectors(s);
     try { await chrome.storage.sync.set({ [SYNC_KEYS.SELECTORS]: s }); }

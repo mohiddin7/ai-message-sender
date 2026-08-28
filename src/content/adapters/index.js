@@ -1,16 +1,14 @@
 import * as claude from "./claude.js";
 import * as chatgpt from "./chatgpt.js";
 import * as gemini from "./gemini.js";
-import { PLATFORMS } from "../../lib/platform.js";
+import * as generic from "./generic.js";
 
 export const adapters = {
-  [PLATFORMS.CLAUDE]: claude,
-  [PLATFORMS.GPT]: chatgpt,
-  [PLATFORMS.GEMINI]: gemini
+  "claude.ai":         claude,
+  "chatgpt.com":       chatgpt,
+  "gemini.google.com": gemini
 };
 
 export function getAdapter(platform) {
-  const a = adapters[platform];
-  if (!a) throw new Error(`no adapter for platform: ${platform}`);
-  return a;
+  return adapters[platform] || generic;
 }

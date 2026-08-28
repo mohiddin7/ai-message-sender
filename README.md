@@ -1,4 +1,4 @@
-# AI Auto-Sender
+# AI Message Sender
 
 **Prompt or Message Scheduler for Claude, ChatGPT, and Gemini — or any messaging app you can point at.**
 

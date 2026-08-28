@@ -1,7 +1,14 @@
+import { detectUntilClockTime } from "./shared-time-parse.js";
+
 export const defaultSelectors = {
   input: "div[contenteditable='true'], rich-textarea div[contenteditable='true']",
   sendButton: "button[aria-label*='Send' i]"
 };
+
+export function isResponseStreaming(root = document) {
+  // Gemini shows a Stop button while streaming.
+  return !!root.querySelector("button[aria-label*='Stop' i], button[aria-label*='Stop generating' i]");
+}
 
 export function isResponseComplete(root = document) {
   if (root.querySelector("button[aria-label*='Stop' i]")) return false;
@@ -11,8 +18,10 @@ export function isResponseComplete(root = document) {
 export function detectReset(root = document) {
   const text = root.body?.innerText || "";
   const m = text.match(/resets?\s+in\s+(\d+)\s*(h|hour|hours|m|min|minute|minutes)/i);
-  if (!m) return null;
-  const n = parseInt(m[1], 10);
-  const ms = (m[2].toLowerCase().startsWith("h") ? n * 3600_000 : n * 60_000);
-  return Date.now() + ms;
+  if (m) {
+    const n = parseInt(m[1], 10);
+    const ms = (m[2].toLowerCase().startsWith("h") ? n * 3600_000 : n * 60_000);
+    return Date.now() + ms;
+  }
+  return detectUntilClockTime(text);
 }

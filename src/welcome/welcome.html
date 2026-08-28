@@ -2,42 +2,292 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Welcome to AI Auto-Sender</title>
+  <title>Welcome to AI Message Sender</title>
+  <link rel="stylesheet" href="ui-tokens.css">
   <link rel="stylesheet" href="welcome.css">
 </head>
 <body>
-  <main>
-    <h1>Welcome 👋</h1>
-    <p>Five quick steps. Your first scheduled prompt is two minutes away.</p>
-    <ol id="steps">
-      <li data-verify="selectors.__lastPlatform.input">
-        <h2>1. Teach the input box</h2>
-        <p>Open a Claude/ChatGPT/Gemini tab. Click the AI Auto-Sender icon, then "🎯 Teach input" and click the prompt box.</p>
-        <button data-next disabled>Next</button>
-      </li>
-      <li data-verify="selectors.__lastPlatform.sendButton">
-        <h2>2. Teach the send button</h2>
-        <p>Same flow, but pick the send arrow.</p>
-        <button data-next disabled>Next</button>
-      </li>
-      <li data-verify="queue.len>=1">
-        <h2>3. Queue a message</h2>
-        <p>Type a prompt, pick a delay, click Queue.</p>
-        <button data-next disabled>Next</button>
-      </li>
-      <li data-verify="history.dryRunOk">
-        <h2>4. Try dry run</h2>
-        <p>Click "Dry run" on your queued item. You'll get a notification describing each step.</p>
-        <button data-next disabled>Next</button>
-      </li>
-      <li>
-        <h2>5. You're set up 🎉</h2>
-        <p>The extension will fire at the scheduled time. You can close this tab.</p>
-        <p style="margin-top:16px;">If this saves you time, you can <a id="coffee" href="#">buy me a coffee</a>. No nag — just a link.</p>
-        <button id="done">Done</button>
-      </li>
-    </ol>
-  </main>
+  <div id="sprite-host"></div>
+
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg class="i i-lg"><use href="#i-logo"/></svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">AI Message Sender</div>
+            <div class="brand-sub">Welcome</div>
+          </div>
+        </div>
+        <nav class="page-nav" aria-label="Site">
+          <a class="page-nav-link is-current" href="welcome.html" aria-current="page">Home</a>
+          <a class="page-nav-link" href="options.html">History</a>
+          <a class="page-nav-link" href="help.html">Help</a>
+          <a class="page-nav-link" href="privacy-policy.html">Privacy</a>
+          <a class="page-nav-link" href="https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" target="_blank" rel="noopener">Coffee</a>
+          <button id="nav-tour-header" class="page-nav-link" type="button">Tour</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero">
+        <h1 class="page-title">Schedule any prompt to any AI chat.</h1>
+        <p class="page-subtitle">Send a message to Claude, ChatGPT, Gemini, and any AI chat site — later, in a chain, or on a recurring schedule.</p>
+      </section>
+
+      <section id="wizard" class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-wand"/></svg>
+            <h2>Quick start</h2>
+          </div>
+          <p class="card-sub">Five quick steps. Your first scheduled prompt is two minutes away.</p>
+        </div>
+        <ol id="steps" class="wizard-steps">
+          <li data-verify="selectors.__lastPlatform.input" class="wizard-step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3 class="step-title">Teach the input box</h3>
+              <p class="step-desc">Open a Claude/ChatGPT/Gemini tab. Click the AI Message Sender icon, then "Teach input" and click the prompt box.</p>
+            </div>
+            <div class="step-action">
+              <button class="btn btn-ghost btn-sm" data-next disabled>Next</button>
+            </div>
+          </li>
+          <li data-verify="selectors.__lastPlatform.sendButton" class="wizard-step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3 class="step-title">Teach the send button</h3>
+              <p class="step-desc">Same flow, but pick the send arrow.</p>
+            </div>
+            <div class="step-action">
+              <button class="btn btn-ghost btn-sm" data-next disabled>Next</button>
+            </div>
+          </li>
+          <li data-verify="queue.len>=1" class="wizard-step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3 class="step-title">Queue a message</h3>
+              <p class="step-desc">Type a prompt, pick a delay, click Queue.</p>
+            </div>
+            <div class="step-action">
+              <button class="btn btn-ghost btn-sm" data-next disabled>Next</button>
+            </div>
+          </li>
+          <li data-verify="history.dryRunOk" class="wizard-step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3 class="step-title">Try dry run</h3>
+              <p class="step-desc">Click "Dry run" on your queued item. You'll get a dialog describing each step.</p>
+            </div>
+            <div class="step-action">
+              <button class="btn btn-ghost btn-sm" data-next disabled>Next</button>
+            </div>
+          </li>
+          <li class="wizard-step">
+            <div class="step-num step-num-final">5</div>
+            <div class="step-body">
+              <h3 class="step-title">You're set up</h3>
+              <p class="step-desc">The extension will fire at the scheduled time. You can close this tab.</p>
+            </div>
+            <div class="step-action">
+              <button class="btn btn-primary btn-sm" id="done" type="button">
+                <svg class="i"><use href="#i-check"/></svg>
+                <span>Done</span>
+              </button>
+            </div>
+          </li>
+        </ol>
+        <div class="wizard-footer">
+          <button id="restart-tour" class="btn btn-ghost btn-sm" type="button" hidden>
+            <svg class="i"><use href="#i-rotate"/></svg>
+            <span>Restart tour</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-list"/></svg>
+            <h2>How it works</h2>
+          </div>
+          <p class="card-sub">The short version, always here even after you've finished the tour above.</p>
+        </div>
+        <div class="card-body">
+          <ol class="howto-steps">
+            <li class="howto-step">
+              <div class="howto-num">1</div>
+              <div class="howto-body">
+                <h3>Teach the input and send button</h3>
+                <p>Open any page with a text box and a send button — an AI chat site or any other webpage. Click the extension icon, "Teach input," then click the box. Same for "Teach send."</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">2</div>
+              <div class="howto-body">
+                <h3>Write a prompt and pick when</h3>
+                <p>Type your message, then choose Delay (a relative offset), At time (an exact date/time), Chain (right after the current response finishes), or Reset (when this page's rate limit clears).</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">3</div>
+              <div class="howto-body">
+                <h3>Queue it</h3>
+                <p>Click "Queue prompt." The item shows up in the Queue list — you can dry-run it (see each step it would take, without actually sending) or cancel it any time before it fires.</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">4</div>
+              <div class="howto-body">
+                <h3>Keep the tab open</h3>
+                <p>At the scheduled moment, the extension focuses the tab, types your message in, and clicks send — as long as that tab and Chrome are still open. See Limitations below for the exact constraints.</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">5</div>
+              <div class="howto-body">
+                <h3>Check History</h3>
+                <p>Every send — successful or failed — is logged for 30 days with the full prompt text, so you can confirm it went out or see why it didn't.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="nav-hub" class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-list"/></svg>
+            <h2>Everything you can do</h2>
+          </div>
+          <p class="card-sub">Quick links to the other pages in the extension.</p>
+        </div>
+        <div class="card-body">
+          <div class="nav-grid">
+            <a id="nav-welcome" class="nav-card is-current" href="#">
+              <div class="nav-card-icon"><svg class="i"><use href="#i-house"/></svg></div>
+              <div class="nav-card-body">
+                <div class="nav-card-title">Welcome</div>
+                <div class="nav-card-desc">The setup tour and the navigation hub. You're here.</div>
+              </div>
+              <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a id="nav-history" class="nav-card" href="#">
+              <div class="nav-card-icon"><svg class="i"><use href="#i-book"/></svg></div>
+              <div class="nav-card-body">
+                <div class="nav-card-title">History</div>
+                <div class="nav-card-desc">Every prompt you've sent or attempted in the last 30 days.</div>
+              </div>
+              <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a id="nav-privacy" class="nav-card" href="privacy-policy.html">
+              <div class="nav-card-icon"><svg class="i"><use href="#i-shield"/></svg></div>
+              <div class="nav-card-body">
+                <div class="nav-card-title">Privacy</div>
+                <div class="nav-card-desc">What this extension stores, and what it doesn't.</div>
+              </div>
+              <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a id="nav-help" class="nav-card" href="help.html">
+              <div class="nav-card-icon"><svg class="i"><use href="#i-help"/></svg></div>
+              <div class="nav-card-body">
+                <div class="nav-card-title">Help &amp; support</div>
+                <div class="nav-card-desc">Features, limitations, FAQ, and how to reach me.</div>
+              </div>
+              <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a id="nav-coffee" class="nav-card nav-card-coffee" href="#" aria-label="Buy me a coffee to support the developer">
+              <div class="nav-card-icon"><svg class="i"><use href="#i-coffee"/></svg></div>
+              <div class="nav-card-body">
+                <div class="nav-card-title">Buy me a coffee</div>
+                <div class="nav-card-desc">If this saves you time, fuel the next version.</div>
+              </div>
+              <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-clock"/></svg>
+            <h2>Time modes in the popup</h2>
+          </div>
+          <p class="card-sub">Four ways to schedule a message. Switch between them at any time.</p>
+        </div>
+        <div class="card-body">
+          <dl class="modes-glossary">
+            <div class="mode-row">
+              <dt>
+                <span class="mode-icon"><svg class="i"><use href="#i-clock"/></svg></span>
+                <span>Delay</span>
+              </dt>
+              <dd>Send after a relative offset — +5m, +15m, +1h, or tomorrow 9am.</dd>
+            </div>
+            <div class="mode-row">
+              <dt>
+                <span class="mode-icon"><svg class="i"><use href="#i-calendar"/></svg></span>
+                <span>At time</span>
+              </dt>
+              <dd>Send at an exact date and time. Type the 5 fields, then press Confirm.</dd>
+            </div>
+            <div class="mode-row">
+              <dt>
+                <span class="mode-icon"><svg class="i"><use href="#i-link"/></svg></span>
+                <span>Chain</span>
+              </dt>
+              <dd>Sends the prompt ~500ms after the current AI response ends on the same tab. Useful for follow-ups.</dd>
+            </div>
+            <div class="mode-row">
+              <dt>
+                <span class="mode-icon"><svg class="i"><use href="#i-rotate"/></svg></span>
+                <span>Reset</span>
+              </dt>
+              <dd>Scans the page for a rate-limit notice — "resets in 2 hours" or "until 8:40 PM" style — and schedules the message for that moment.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="card is-warn">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-alert"/></svg>
+            <h2>Limitations</h2>
+          </div>
+          <p class="card-sub">Scheduled sends depend on your browser, not a server — a few real constraints follow from that.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>The tab you scheduled a message in must stay open. Closing it cancels that send — you'll see it marked "tab lost" in History.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Chrome itself must be running. If you fully quit Chrome, queued sends fire late once you reopen it, not retroactively at the original time.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Your device just needs to be awake — a locked screen is fine, sleep or hibernate is not.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Works on any webpage with a text input and a send button — not limited to Claude, ChatGPT, or Gemini.</span></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <div class="footer-links">
+        <a class="footer-link" href="https://github.com/mohiddin7/ai-message-sender" target="_blank" rel="noopener">
+          <svg class="i"><use href="#i-external"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="footer-link" href="mailto:support@warmhop.com">
+          <svg class="i"><use href="#i-mail"/></svg>
+          <span>support@warmhop.com</span>
+        </a>
+      </div>
+      <div class="footer-copyright">&copy; 2026 AI Message Sender</div>
+    </footer>
+  </div>
+
   <script type="module" src="welcome.js"></script>
 </body>
 </html>

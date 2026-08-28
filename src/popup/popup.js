@@ -1,32 +1,50 @@
 import { MESSAGE_TYPES } from "../lib/messages.js";
-import { detectPlatformFromUrl } from "../lib/platform.js";
+import { detectPlatformFromUrl, isWellKnownPlatform, displayName } from "../lib/platform.js";
 import { id as makeId } from "../lib/id.js";
 import { mountTimeControls } from "./time-controls.js";
 import { renderQueueList } from "./queue-list.js";
 import { mountRecurringForm } from "./recurring-form.js";
 import { scheduleAlarm } from "../background/scheduler.js";
+import { SPRITE_HTML } from "./sprite.js";
+import { startTutorial } from "./tutorial.js";
+
+// Inject the shared icon sprite so <use href="#i-..."> works
+document.getElementById("sprite-host").innerHTML = SPRITE_HTML;
 
 const badge = document.getElementById("badge");
+const badgeLabel = badge.querySelector(".platform-label");
 const controls = document.getElementById("controls");
 const err = document.getElementById("err");
 const timeRoot = document.getElementById("time-controls");
-tc = mountTimeControls(timeRoot, { onChange: () => {} });
+let tc = mountTimeControls(timeRoot, { onChange: () => {} });
 let currentPlatform = null;
 let currentTab = null;
 
-document.querySelectorAll(".mode").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".mode").forEach(x => x.classList.remove("active"));
-  b.classList.add("active"); tc.setMode(b.dataset.mode);
+document.querySelectorAll(".segment").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".segment").forEach(x => { x.classList.remove("is-active"); x.setAttribute("aria-selected", "false"); });
+  b.classList.add("is-active"); b.setAttribute("aria-selected", "true"); tc.setMode(b.dataset.mode);
 }));
 
 document.getElementById("pickInput") .addEventListener("click", () => triggerPicker("input"));
 document.getElementById("pickButton").addEventListener("click", () => triggerPicker("button"));
 
-document.getElementById("saveBtn").addEventListener("click", async () => {
+// Extracted to a named function (rather than inline in the click listener)
+// so the tutorial's auto-driven tour can queue a real demo item itself and
+// get the created item back — see startTutorial()'s pendingTourLaunch
+// branch below.
+async function queueCurrentPrompt() {
   const text = document.getElementById("msg").value;
   const { mode, value } = tc.value;
-  if (!text)            { err.textContent = "Enter a prompt."; return; }
-  if (mode !== "chain" && !value) { err.textContent = "Pick a time."; return; }
+  if (!text) {
+    err.textContent = "Enter a prompt.";
+    alert("Please fill out the prompt fields fully!");
+    return null;
+  }
+  if (mode !== "chain" && !value) {
+    err.textContent = "Pick a time.";
+    alert("Please pick a future time target!");
+    return null;
+  }
   const scheduledAt = mode === "delay" ? Date.now() + value : (mode === "chain" ? null : value);
   const item = {
     id: makeId("q"), platform: currentPlatform, tabId: currentTab.id,
@@ -37,20 +55,81 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   queue.push(item);
   await chrome.storage.local.set({ queue });
   if (item.scheduledAt) await scheduleAlarm(item);
+  if (item.mode === "chain") {
+    // Arm the content-script response watcher. Without this, the chain
+    // item never fires — it has no scheduledAt and never enters onAlarm.
+    chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.CHAIN_ARM, itemId: item.id, platform: currentPlatform }).catch(() => {});
+  }
+  const when = scheduledAt ? new Date(scheduledAt).toLocaleString() : "when the response ends";
   err.textContent = "Queued.";
+  alert(`Queued for ${when}.`);
   document.getElementById("msg").value = "";
   renderQueueList(document.getElementById("queue-list"));
-});
+  return item;
+}
+document.getElementById("saveBtn").addEventListener("click", queueCurrentPrompt);
 
-document.getElementById("open-welcome").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("src/welcome/welcome.html") }); });
-document.getElementById("open-options").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
-document.getElementById("open-coffee") .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
+document.getElementById("open-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
+document.getElementById("open-tutorial").addEventListener("click", e => { e.preventDefault(); startTutorial({ force: true }); });
+document.getElementById("open-coffee").addEventListener("click", e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" });
+});
+// Two entry points to the same help.html — the header icon (compact,
+// always visible) and this labeled footer link (more discoverable).
+// Privacy is still one click away from there, not removed — just no
+// longer a standalone footer shortcut now that Help covers it plus FAQ,
+// features, and limitations in one place.
+document.getElementById("open-help").addEventListener("click", e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL("help.html") });
+});
+document.getElementById("open-help-footer").addEventListener("click", e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL("help.html") });
+});
 
 mountRecurringForm(document.getElementById("recurring-form"), () => ({ tabId: currentTab?.id, conversationUrl: currentTab?.url, text: document.getElementById("msg").value, platform: currentPlatform }));
 
+async function refreshPickerStatus() {
+  const { selectors = {} } = await chrome.storage.local.get("selectors");
+  const cur = selectors[currentPlatform] || {};
+  const inputEl  = document.querySelector("#pickInput  .picker-status");
+  const buttonEl = document.querySelector("#pickButton .picker-status");
+  if (inputEl)  updatePickerStatus(inputEl,  cur.input);
+  if (buttonEl) updatePickerStatus(buttonEl, cur.sendButton);
+}
+
+function updatePickerStatus(el, selector) {
+  if (!el) return;
+  if (selector) {
+    el.dataset.state = "set";
+    // CSS wraps this onto extra lines (overflow-wrap: anywhere) instead of
+    // widening the button, so show the real selector rather than an
+    // ellipsis-truncated one. Still cap absurd outliers.
+    el.textContent = "✓ Mapped to " + (selector.length > 80 ? selector.slice(0, 77) + "…" : selector);
+    el.title = selector;
+  } else {
+    el.dataset.state = "unset";
+    el.textContent = "click to teach";
+    el.title = "";
+  }
+}
+
 async function triggerPicker(type) {
-  await chrome.scripting.executeScript({ target: { tabId: currentTab.id }, files: ["src/content/index.js"] });
-  chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.START_PICKING, type, platform: currentPlatform });
+  // Content script is auto-injected on every URL by the manifest. The executeScript
+  // call is a safety net for browser-internal pages where auto-injection is denied.
+  try {
+    await chrome.scripting.executeScript({ target: { tabId: currentTab.id }, files: ["content.js"] });
+  } catch (_) {
+    // ignore — the content script may already be there, or this tab may be sandboxed
+  }
+  try {
+    await chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.START_PICKING, type, platform: currentPlatform });
+  } catch (e) {
+    err.textContent = `Could not start picker: ${e.message}`;
+    return;
+  }
   window.close();
 }
 
@@ -59,14 +138,43 @@ async function triggerPicker(type) {
   currentTab = tab;
   currentPlatform = detectPlatformFromUrl(tab.url);
   if (!currentPlatform) {
-    badge.textContent = "Unsupported";
+    badgeLabel.textContent = "Unsupported";
+    badge.dataset.platform = "generic";
     err.textContent = "Open Claude, ChatGPT, or Gemini.";
     return;
   }
   window.__platform = currentPlatform;
-  badge.textContent = currentPlatform;
-  badge.classList.add(currentPlatform);
+  badgeLabel.textContent = displayName(currentPlatform);
+  badge.dataset.platform = isWellKnownPlatform(currentPlatform) ? currentPlatform : "generic";
   controls.hidden = false;
   tc.render();
+  await refreshPickerStatus();
+  try {
+    chrome.tabs.sendMessage(currentTab.id, { action: MESSAGE_TYPES.DETECT_RESET, platform: currentPlatform }, (resp) => {
+      if (chrome.runtime.lastError) return; // no content script on this tab — fine
+      if (resp?.ts && Number.isFinite(resp.ts)) tc.setResetSuggestion(resp.ts);
+    });
+  } catch (_) { /* tab is sandboxed, no content script, or page is gone */ }
   renderQueueList(document.getElementById("queue-list"));
+
+  // Auto-fire the tutorial on first run (no settings.tutorialSeen flag yet),
+  // or if welcome.html's "Show popup tour" just opened this popup via
+  // chrome.action.openPopup() and set this flag — see welcome.js. There's
+  // no way to pass a query param through openPopup(), so a storage flag is
+  // the signal instead of the URL. Consumed once, then cleared.
+  const { settings = {} } = await chrome.storage.local.get("settings");
+  if (settings.pendingTourLaunch) {
+    await chrome.storage.local.set({ settings: { ...settings, pendingTourLaunch: false } });
+    // Only the welcome-page-launched tour auto-drives the real page (it
+    // deliberately opened a known chatgpt.com tab for this). The footer
+    // replay and the first-run auto-tour below stay highlight-only, since
+    // they can fire on any tab, loaded or not, supported or not.
+    setTimeout(() => startTutorial({
+      force: true,
+      autoDrive: { tabId: currentTab.id, platform: currentPlatform },
+      actions: { queuePrompt: queueCurrentPrompt, refreshPickerStatus }
+    }), 400);
+  } else if (!settings.tutorialSeen) {
+    setTimeout(() => startTutorial({ force: true }), 400);
+  }
 })();
