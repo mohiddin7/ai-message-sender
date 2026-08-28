@@ -174,11 +174,10 @@ function targetFor(e, type) {
 
 function clearHover(el) {
   if (!el || !el.style) return;
-  // Strip both our outline prop and the legacy class, so re-opening the
-  // picker after a previous teach never leaves a stale outline on the page.
+  // Re-opening the picker after a previous teach never leaves a stale
+  // outline on the page.
   el.style.removeProperty("outline");
   el.style.removeProperty("outline-offset");
-  el.classList.remove("picker-hover-valid", "picker-hover-error");
 }
 
 function setHover(el, kind /* "valid" | "error" */) {
@@ -186,11 +185,16 @@ function setHover(el, kind /* "valid" | "error" */) {
   // v4 set outline inline via setProperty(..., 'important') and it always
   // won. CSS classes from an extension stylesheet get beat by host-page
   // !important rules sometimes; inline style doesn't. Match v4 exactly.
+  //
+  // This used to also toggle picker-hover-valid/picker-hover-error classes
+  // for styling, but the CSS that targeted them was deleted when the
+  // outline moved to this inline-style approach (see commit history) — the
+  // classes kept getting toggled with zero visual effect ever since. Found
+  // by a project-wide audit for exactly this class-name-mismatch shape of
+  // bug; removed rather than re-adding dead CSS for them.
   const color = kind === "error" ? "#b91c1c" : "#2563eb";
   el.style.setProperty("outline", `3px dashed ${color}`, "important");
   el.style.setProperty("outline-offset", "-3px", "important");
-  el.classList.toggle("picker-hover-valid", kind === "valid");
-  el.classList.toggle("picker-hover-error", kind === "error");
 }
 
 export function showPickerLabel({ title, selector, kind = "info" }) {

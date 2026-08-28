@@ -145,7 +145,7 @@ export function mountTimeControls(root, { onChange }) {
     const actions = document.createElement("div");
     actions.className = "when-actions";
     const confirmBtn = document.createElement("button");
-    confirmBtn.className = "btn btn-primary confirm";
+    confirmBtn.className = "btn btn-primary";
     confirmBtn.type = "button";
     confirmBtn.textContent = "Confirm";
     confirmBtn.disabled = true;
