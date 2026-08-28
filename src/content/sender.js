@@ -49,6 +49,28 @@ export function writeText(el, text) {
   }
 }
 
+// Clears a field back to empty. writeText()'s "delete current selection"
+// doesn't help here since nothing is selected by default — this actually
+// selects everything first. Used by the tour demo to wipe the placeholder
+// text it types in just to make the send button render.
+export function clearField(el) {
+  try {
+    el.focus();
+    if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+      setter.call(el, "");
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    } else {
+      document.execCommand("selectAll", false);
+      document.execCommand("delete", false);
+      el.dispatchEvent(new InputEvent("input", { bubbles: true, cancelable: true, inputType: "deleteContentBackward" }));
+    }
+    return { ok: true, step: "clearField" };
+  } catch (e) {
+    return { ok: false, step: "clearField", reason: String(e?.message || e) };
+  }
+}
+
 export function clickSend(el) {
   try {
     el.removeAttribute("disabled");

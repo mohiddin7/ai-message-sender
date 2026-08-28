@@ -16,6 +16,13 @@
 // the user finishes or skips. The on-demand re-launch clears that flag
 // so the next time the popup opens it doesn't auto-fire.
 
+import { MESSAGE_TYPES } from "../lib/messages.js";
+
+// Only used when autoDrive is set (welcome-page-launched tour, on a real
+// chatgpt.com tab) — filled into the popup's own prompt field, and later
+// into the real queued/dry-run/sent item.
+const DEMO_PROMPT_TEXT = "This is a demo prompt from the AI Message Sender tour. It'll really be sent in 5 minutes so you can see the whole flow.";
+
 const STEPS = [
   {
     id: "platform",
@@ -29,28 +36,53 @@ const STEPS = [
     sel: ".segmented",
     title: "Pick a time mode",
     body: "Delay sends after a relative offset. At time fires at an exact moment. Reset scans the page for a 'resets in 2 hours' notice. Chain sends ~500ms after this tab's current response ends.",
-    placement: "below"
+    bodyAuto: "I've picked Delay, 5 minutes — enough time to show you the whole flow for real.",
+    placement: "below",
+    // Auto-clicks the same segment button a user would — reuses popup.js's
+    // own click listener (class toggling + tc.setMode), so this is exactly
+    // what a real click does. Delay mode's first chip is already +5m.
+    auto: () => document.querySelector('[data-mode="delay"]')?.click()
   },
   {
     id: "picker",
     sel: ".picker-row",
     title: "Teach the page",
     body: "Click Teach input, then click the prompt box on the page. Click Teach send, then click the send button. The picker picks a stable selector for you.",
-    placement: "below"
+    bodyAuto: "Watch the page — I'm pointing at the real input, then the real send button, and mapping both.",
+    placement: "below",
+    auto: async ({ autoDrive, actions }) => {
+      if (!autoDrive) return;
+      try {
+        await chrome.tabs.sendMessage(autoDrive.tabId, { action: MESSAGE_TYPES.TOUR_DEMO_TEACH, platform: autoDrive.platform });
+      } catch (_) { /* tab navigated away or content script not there — skip, non-fatal */ }
+      actions?.refreshPickerStatus?.();
+    }
   },
   {
     id: "prompt",
     sel: "#msg",
     title: "Type your prompt",
     body: "Write what you want the AI to receive. You can queue several at once.",
-    placement: "above"
+    bodyAuto: "I've filled in a demo prompt below.",
+    placement: "above",
+    auto: () => {
+      const el = document.getElementById("msg");
+      if (el && !el.value) el.value = DEMO_PROMPT_TEXT;
+    }
   },
   {
     id: "queue",
     sel: "#saveBtn",
     title: "Queue it",
     body: "The extension schedules the send. The tab can be in the background — it'll focus when the moment comes.",
-    placement: "above"
+    bodyAuto: "Queuing it now — 5 minutes, then I'll dry-run it so you can see what a real send looks like. In 5 real minutes, this demo message actually sends.",
+    placement: "above",
+    auto: async ({ actions }) => {
+      const item = await actions?.queuePrompt?.();
+      if (item?.id) {
+        try { await chrome.runtime.sendMessage({ action: MESSAGE_TYPES.DRY_RUN_ITEM, itemId: item.id }); } catch (_) {}
+      }
+    }
   },
   {
     id: "queue-list",
@@ -64,12 +96,12 @@ const STEPS = [
 const STORAGE_KEY = "settings";
 const SEEN_FLAG = "tutorialSeen";
 
-export async function startTutorial({ onFinish, force = false } = {}) {
+export async function startTutorial({ onFinish, force = false, autoDrive = null, actions = null } = {}) {
   if (!force) {
     const { settings = {} } = await chrome.storage.local.get(STORAGE_KEY);
     if (settings[SEEN_FLAG]) return;
   }
-  const overlay = mountOverlay(onFinish);
+  const overlay = mountOverlay(onFinish, autoDrive, actions);
   document.body.appendChild(overlay.root);
   // Wait one frame for layout, then position the first step
   await new Promise(r => requestAnimationFrame(r));
@@ -77,7 +109,7 @@ export async function startTutorial({ onFinish, force = false } = {}) {
   return overlay;
 }
 
-function mountOverlay(onFinish) {
+function mountOverlay(onFinish, autoDrive, actions) {
   const root = document.createElement("div");
   root.className = "tutorial-overlay";
   root.setAttribute("role", "dialog");
@@ -122,6 +154,7 @@ function mountOverlay(onFinish) {
   let disposed = false;
   let currentTarget = null;
   let scrollQueued = false;
+  const firedSteps = new Set(); // each step's auto() runs once, going forward only
 
   function placeAt(target) {
     const r = target.getBoundingClientRect();
@@ -156,12 +189,17 @@ function mountOverlay(onFinish) {
 
     stepEl.textContent  = `Step ${idx + 1} of ${STEPS.length}`;
     titleEl.textContent = step.title;
-    bodyEl.textContent  = step.body;
+    bodyEl.textContent  = (autoDrive && step.bodyAuto) ? step.bodyAuto : step.body;
     prevBtn.hidden = idx === 0;
     nextBtn.textContent = idx === STEPS.length - 1 ? "Done" : "Next";
 
     currentTarget = target;
     placeAt(target);
+
+    if (autoDrive && step.auto && !firedSteps.has(step.id)) {
+      firedSteps.add(step.id);
+      Promise.resolve(step.auto({ autoDrive, actions })).catch(() => {});
+    }
   }
 
   // Several step targets (#msg, #saveBtn, .queue-section) live inside

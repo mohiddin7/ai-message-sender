@@ -172,7 +172,7 @@ function targetFor(e, type) {
   return el;
 }
 
-function clearHover(el) {
+export function clearHover(el) {
   if (!el || !el.style) return;
   // Re-opening the picker after a previous teach never leaves a stale
   // outline on the page.
@@ -180,7 +180,7 @@ function clearHover(el) {
   el.style.removeProperty("outline-offset");
 }
 
-function setHover(el, kind /* "valid" | "error" */) {
+export function setHover(el, kind /* "valid" | "error" */) {
   if (!el || !el.style) return;
   // v4 set outline inline via setProperty(..., 'important') and it always
   // won. CSS classes from an extension stylesheet get beat by host-page

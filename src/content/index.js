@@ -1,10 +1,10 @@
 import { MESSAGE_TYPES } from "../lib/messages.js";
 import { log } from "../lib/log.js";
-import { startPicking, showPickerLabel, hidePickerLabel } from "./selector-picker.js";
-import { executeSend, dryRunSend } from "./sender.js";
+import { startPicking, showPickerLabel, hidePickerLabel, setHover, clearHover, cleanSelector } from "./selector-picker.js";
+import { executeSend, dryRunSend, findInput, findSendButton, writeText, clearField } from "./sender.js";
+import { syncStore } from "../background/sync-store.js";
 import { scan as detectResetScan } from "./reset-detector.js";
 import { watch as watchResponse } from "./response-watcher.js";
-import { syncStore } from "../background/sync-store.js";
 
 if (window.__aiAutoSenderInit) {
   // Already initialized; nothing to do.
@@ -76,6 +76,47 @@ if (window.__aiAutoSenderInit) {
         sendResponse({ ok: true });
         break;
       }
+      case MESSAGE_TYPES.TOUR_DEMO_TEACH:
+        (async () => {
+          const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+          try {
+            const input = findInput(document, null, msg.platform);
+            if (!input.ok) { sendResponse({ ok: false, reason: input.reason }); return; }
+            input.el.scrollIntoView({ block: "center", behavior: "smooth" });
+            setHover(input.el, "valid");
+            await sleep(900);
+            // ChatGPT (and most chat UIs) hide/disable the send button until
+            // there's text — insert a placeholder so it renders and can be
+            // highlighted below.
+            writeText(input.el, "hi");
+            await sleep(500);
+
+            const button = findSendButton(document, null, msg.platform);
+            if (button.ok) {
+              button.el.scrollIntoView({ block: "center", behavior: "smooth" });
+              setHover(button.el, "valid");
+              await sleep(900);
+              clearHover(button.el);
+            }
+
+            // Lock in real selectors for both, same as a manual teach —
+            // this is what "the mouse selected it" means: it's taught, not
+            // just glanced at.
+            const all = (await syncStore.getSelectors()) || {};
+            const cur = all[msg.platform] || {};
+            cur.input = cleanSelector(input.el);
+            if (button.ok) cur.sendButton = cleanSelector(button.el);
+            all[msg.platform] = cur;
+            await syncStore.setSelectors(all);
+
+            clearField(input.el);
+            clearHover(input.el);
+            sendResponse({ ok: true });
+          } catch (e) {
+            sendResponse({ ok: false, reason: String(e?.message || e) });
+          }
+        })();
+        return true;
       case MESSAGE_TYPES.CHAIN_ARM: {
         // Popup just queued a chain item. Arm the response watcher; when the
         // page's current response finishes, tell the background to schedule the

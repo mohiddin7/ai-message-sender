@@ -10,5 +10,9 @@ export const MESSAGE_TYPES = Object.freeze({
   RETARGET_ITEM:    "RETARGET_ITEM",
   // Background → content: show a v4-style in-page alert/confirm
   // (replaces the chrome.notifications OS toast).
-  SEND_NOTICE:      "SEND_NOTICE"
+  SEND_NOTICE:      "SEND_NOTICE",
+  // Popup (tutorial) → content: auto-driven tour demo — highlight the
+  // real input/send button on the page, drop in placeholder text so the
+  // send button renders, then clear it back out. See tutorial.js.
+  TOUR_DEMO_TEACH:  "TOUR_DEMO_TEACH"
 });

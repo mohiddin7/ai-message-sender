@@ -28,18 +28,22 @@ document.querySelectorAll(".segment").forEach(b => b.addEventListener("click", (
 document.getElementById("pickInput") .addEventListener("click", () => triggerPicker("input"));
 document.getElementById("pickButton").addEventListener("click", () => triggerPicker("button"));
 
-document.getElementById("saveBtn").addEventListener("click", async () => {
+// Extracted to a named function (rather than inline in the click listener)
+// so the tutorial's auto-driven tour can queue a real demo item itself and
+// get the created item back — see startTutorial()'s pendingTourLaunch
+// branch below.
+async function queueCurrentPrompt() {
   const text = document.getElementById("msg").value;
   const { mode, value } = tc.value;
   if (!text) {
     err.textContent = "Enter a prompt.";
     alert("Please fill out the prompt fields fully!");
-    return;
+    return null;
   }
   if (mode !== "chain" && !value) {
     err.textContent = "Pick a time.";
     alert("Please pick a future time target!");
-    return;
+    return null;
   }
   const scheduledAt = mode === "delay" ? Date.now() + value : (mode === "chain" ? null : value);
   const item = {
@@ -61,7 +65,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   alert(`Queued for ${when}.`);
   document.getElementById("msg").value = "";
   renderQueueList(document.getElementById("queue-list"));
-});
+  return item;
+}
+document.getElementById("saveBtn").addEventListener("click", queueCurrentPrompt);
 
 document.getElementById("open-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
 document.getElementById("open-tutorial").addEventListener("click", e => { e.preventDefault(); startTutorial({ force: true }); });
@@ -159,7 +165,15 @@ async function triggerPicker(type) {
   const { settings = {} } = await chrome.storage.local.get("settings");
   if (settings.pendingTourLaunch) {
     await chrome.storage.local.set({ settings: { ...settings, pendingTourLaunch: false } });
-    setTimeout(() => startTutorial({ force: true }), 400);
+    // Only the welcome-page-launched tour auto-drives the real page (it
+    // deliberately opened a known chatgpt.com tab for this). The footer
+    // replay and the first-run auto-tour below stay highlight-only, since
+    // they can fire on any tab, loaded or not, supported or not.
+    setTimeout(() => startTutorial({
+      force: true,
+      autoDrive: { tabId: currentTab.id, platform: currentPlatform },
+      actions: { queuePrompt: queueCurrentPrompt, refreshPickerStatus }
+    }), 400);
   } else if (!settings.tutorialSeen) {
     setTimeout(() => startTutorial({ force: true }), 400);
   }

@@ -4,6 +4,7 @@
 
 import { SPRITE_HTML } from "./sprite.js";
 import { detectPlatformFromUrl } from "../lib/platform.js";
+import { launchTour } from "../lib/tour-launch.js";
 
 const items = [...document.querySelectorAll("#steps .wizard-step")];
 const wizard = document.getElementById("wizard");
@@ -90,23 +91,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // (chrome.tabs.create), which rendered the popup's markup as a full
   // webpage — not the real small extension popup, and with no actual AI
   // tab behind it for the teach-input/teach-send steps to target.
-  // chrome.action.openPopup() (Chrome 127+) opens the genuine popup for
-  // whichever tab is currently active/focused, so: open a real ChatGPT
-  // tab, focus its window, then open the real popup on it. There's no way
-  // to pass a query param through openPopup(), so a storage flag tells
-  // popup.js to auto-launch the tour on this specific open (see popup.js).
-  document.getElementById("nav-tour-header").addEventListener("click", async () => {
-    const { settings = {} } = await chrome.storage.local.get("settings");
-    await chrome.storage.local.set({ settings: { ...settings, pendingTourLaunch: true } });
-    const tab = await chrome.tabs.create({ url: "https://chatgpt.com/", active: true });
-    if (tab.windowId != null) await chrome.windows.update(tab.windowId, { focused: true });
-    try {
-      await chrome.action.openPopup();
-    } catch (_) {
-      // Chrome <127 (below this extension's minimum, but degrade rather
-      // than silently do nothing if it somehow gets here): fall back to
-      // the old tab-based approximation.
-      chrome.tabs.create({ url: chrome.runtime.getURL("popup.html") });
-    }
-  });
+  // launchTour() (shared with every other page's header — see
+  // src/lib/tour-launch.js) opens a real ChatGPT tab, waits for it to
+  // finish loading, then opens the genuine extension popup on it.
+  document.getElementById("nav-tour-header").addEventListener("click", launchTour);
 });
