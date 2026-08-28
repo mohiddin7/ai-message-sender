@@ -3,6 +3,7 @@ import { queueStore } from "../background/queue-store.js";
 import { MESSAGE_TYPES } from "../lib/messages.js";
 import { showHistoryDetail } from "./history-view.js";
 import { SPRITE_HTML } from "./sprite.js";
+import { launchTour } from "../lib/tour-launch.js";
 
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
 
@@ -139,6 +140,7 @@ document.getElementById("wipe-sync").addEventListener("click", async () => {
 
 document.getElementById("coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
 document.getElementById("welcome").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") }); });
+document.getElementById("nav-tour-header")?.addEventListener("click", launchTour);
 
 (async () => {
   const host = document.getElementById("sprite-host");

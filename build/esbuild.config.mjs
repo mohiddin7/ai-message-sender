@@ -8,7 +8,9 @@ await Promise.all([
   esbuild.build({ ...common, entryPoints: ["src/content/index.js"],     outfile: "dist/content.js",   platform: "browser" }),
   esbuild.build({ ...common, entryPoints: ["src/popup/popup.js"],        outfile: "dist/popup.js" }),
   esbuild.build({ ...common, entryPoints: ["src/options/options.js"],    outfile: "dist/options.js" }),
-  esbuild.build({ ...common, entryPoints: ["src/welcome/welcome.js"],    outfile: "dist/welcome.js" })
+  esbuild.build({ ...common, entryPoints: ["src/welcome/welcome.js"],    outfile: "dist/welcome.js" }),
+  esbuild.build({ ...common, entryPoints: ["help.js"],                   outfile: "dist/help.js" }),
+  esbuild.build({ ...common, entryPoints: ["privacy.js"],                outfile: "dist/privacy.js" })
 ]);
 
 await mkdir("dist", { recursive: true });

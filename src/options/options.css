@@ -42,6 +42,40 @@ body {
   align-items: center;
   gap: var(--space-3);
 }
+/* Groups the nav and the sync pill together on the right side of the
+   header, so .page-header-inner's space-between still puts brand on the
+   far left and everything else hugging the far right — same header
+   layout as welcome/help/privacy, which don't have a third header-actions
+   element and so don't need this wrapper. */
+.page-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.page-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.page-nav-link {
+  /* Shared by <a> nav links and the <button id="nav-tour-header"> — reset
+     button-only defaults (border/background/font/cursor) so it's visually
+     identical to its <a> siblings. */
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--fg-muted);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.page-nav-link:hover { color: var(--fg); background: var(--surface-2); }
+.page-nav-link.is-current { color: var(--brand); background: var(--brand-soft); }
 .brand-mark {
   width: 36px;
   height: 36px;
