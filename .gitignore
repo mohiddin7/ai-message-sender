@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.zip
+.DS_Store
+.idea/
+.vscode/
+coverage/
+.superpowers/
+
+# Local secrets — never commit
+.env
+.env.*
+!.env.example

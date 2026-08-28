@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to AI Auto-Sender</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <main>
+    <h1>Welcome 👋</h1>
+    <p>Five quick steps. Your first scheduled prompt is two minutes away.</p>
+    <ol id="steps">
+      <li data-verify="selectors.__lastPlatform.input">
+        <h2>1. Teach the input box</h2>
+        <p>Open a Claude/ChatGPT/Gemini tab. Click the AI Auto-Sender icon, then "🎯 Teach input" and click the prompt box.</p>
+        <button data-next disabled>Next</button>
+      </li>
+      <li data-verify="selectors.__lastPlatform.sendButton">
+        <h2>2. Teach the send button</h2>
+        <p>Same flow, but pick the send arrow.</p>
+        <button data-next disabled>Next</button>
+      </li>
+      <li data-verify="queue.len>=1">
+        <h2>3. Queue a message</h2>
+        <p>Type a prompt, pick a delay, click Queue.</p>
+        <button data-next disabled>Next</button>
+      </li>
+      <li data-verify="history.dryRunOk">
+        <h2>4. Try dry run</h2>
+        <p>Click "Dry run" on your queued item. You'll get a notification describing each step.</p>
+        <button data-next disabled>Next</button>
+      </li>
+      <li>
+        <h2>5. You're set up 🎉</h2>
+        <p>The extension will fire at the scheduled time. You can close this tab.</p>
+        <p style="margin-top:16px;">If this saves you time, you can <a id="coffee" href="#">buy me a coffee</a>. No nag — just a link.</p>
+        <button id="done">Done</button>
+      </li>
+    </ol>
+  </main>
+  <script type="module" src="welcome.js"></script>
+</body>
+</html>
