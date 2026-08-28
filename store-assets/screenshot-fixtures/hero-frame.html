@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Inter"; src: local("Inter"); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1280px; height: 800px; overflow: hidden;
+    font-family: "Inter", ui-sans-serif, -apple-system, system-ui, sans-serif;
+    background: radial-gradient(1100px 700px at 82% 50%, #ede9fe 0%, #fafafa 55%, #fafafa 100%);
+    display: flex; align-items: center;
+  }
+  .copy { width: 560px; padding-left: 88px; }
+  .brand-row { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 10px; background: #7c3aed;
+    display: grid; place-items: center; box-shadow: 0 4px 8px rgba(124,58,237,.25);
+  }
+  .brand-name { font-size: 17px; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
+  h1 {
+    font-size: 44px; line-height: 1.12; font-weight: 700; letter-spacing: -0.03em;
+    color: #0f172a; margin: 0 0 20px;
+  }
+  h1 span { color: #7c3aed; }
+  p.lede {
+    font-size: 18px; line-height: 1.55; color: #475569; margin: 0 0 36px; max-width: 46ch;
+  }
+  .feats { display: flex; flex-direction: column; gap: 16px; }
+  .feat { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: #1e293b; }
+  .feat .dot { width: 22px; height: 22px; border-radius: 999px; background: #ede9fe; color: #7c3aed; display: grid; place-items: center; font-size: 13px; flex-shrink: 0; }
+
+  .stage { position: relative; width: 632px; height: 800px; flex-shrink: 0; }
+  .popup-frame {
+    position: absolute; top: 118px; right: 96px;
+    width: 396px; height: 660px;
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15,23,42,.22), 0 4px 16px rgba(15,23,42,.10);
+    border: 1px solid rgba(15,23,42,.06);
+    background: #fff;
+  }
+  .popup-frame iframe {
+    width: 360px; height: 600px;
+    transform: scale(1.1); transform-origin: top left;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M20.5 3.5 3 11l9 10.5-2-9Z"/><path d="M20.5 3.5 10 12.5l2 9Z" fill-opacity="0.55"/></svg>
+      </div>
+      <div class="brand-name">AI Message Sender</div>
+    </div>
+    <h1>Schedule any prompt<br>to <span>any AI chat.</span></h1>
+    <p class="lede">Delay it, chain it, repeat it, or send it the moment your limit resets — on ChatGPT, Claude, Gemini, or any site with a text box and a send button.</p>
+    <div class="feats">
+      <div class="feat"><span class="dot">✓</span> Works even with the tab in the background</div>
+      <div class="feat"><span class="dot">✓</span> Dry-run tests before it trusts a real send</div>
+      <div class="feat"><span class="dot">✓</span> Recurring daily and weekly schedules</div>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="popup-frame">
+      <iframe src="popup.html"></iframe>
+    </div>
+  </div>
+</body>
+</html>
