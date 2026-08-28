@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AI Message Sender — Help &amp; Support</title>
+  <link rel="stylesheet" href="ui-tokens.css">
+  <link rel="stylesheet" href="help.css">
+</head>
+<body>
+  <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-logo" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M20.5 3.5 3 11l9 10.5-2-9Z"/>
+      <path d="M20.5 3.5 10 12.5l2 9Z" fill-opacity="0.55"/>
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1.5 1-1.5 2.2"/><path d="M12 17.5h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2 20h20L12 4Z"/><path d="M12 10v4M12 17.5v.5"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17v11h-17z"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/><path d="M15 4h5v5"/><path d="M20 4 11 13"/></symbol>
+    <symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+  </svg>
+
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg class="i i-lg"><use href="#i-logo"/></svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">AI Message Sender</div>
+            <div class="brand-sub">Help &amp; support</div>
+          </div>
+        </div>
+        <nav class="page-nav" aria-label="Site">
+          <a class="page-nav-link" href="welcome.html">Home</a>
+          <a class="page-nav-link" href="options.html">History</a>
+          <a class="page-nav-link is-current" href="help.html" aria-current="page">Help</a>
+          <a class="page-nav-link" href="privacy-policy.html">Privacy</a>
+          <a class="page-nav-link" href="https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" target="_blank" rel="noopener">Coffee</a>
+          <button id="nav-tour-header" class="page-nav-link" type="button">Tour</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero">
+        <h1 class="page-title">Help &amp; support.</h1>
+        <p class="page-subtitle">Everything the extension does, what it can't do, and how to reach me if something's wrong.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-check"/></svg>
+            <h2>Features</h2>
+          </div>
+          <p class="card-sub">Works on any webpage with a text input and a send button — not limited to Claude, ChatGPT, or Gemini.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Teach picker</strong> — click to map the input field and send button on any page, once per site.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Delay</strong> — send after a relative offset (+5m, +15m, +1h, tomorrow 9am).</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>At time</strong> — send at an exact date and time.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Chain</strong> — send ~500ms after the current AI response finishes on the same tab.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Reset</strong> — scan the page for a rate-limit notice and send the moment it clears.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Recurring rules</strong> — repeat a prompt on a schedule instead of queuing it once.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Dry run</strong> — preview exactly what a queued item would do, without actually sending it.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>History</strong> — every send, successful or failed, logged with full prompt text for 30 days.</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg> <span><strong>Cross-device sync</strong> — taught selectors and settings sync via your Google account, never through a server we run.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card is-warn">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-alert"/></svg>
+            <h2>Limitations</h2>
+          </div>
+          <p class="card-sub">Scheduled sends depend on your browser, not a server — a few real constraints follow from that.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>The tab you scheduled a message in must stay open. Closing it cancels that send — you'll see it marked "tab lost" in History.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Chrome itself must be running. If you fully quit Chrome, queued sends fire late once you reopen it, not retroactively at the original time.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Your device just needs to be awake — a locked screen is fine, sleep or hibernate is not.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>The picker won't select overlays, dev/UI portals, or hidden elements — pick the real input or button, not a wrapping container.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-help"/></svg>
+            <h2>FAQ</h2>
+          </div>
+          <p class="card-sub">Common questions, answered directly.</p>
+        </div>
+        <div class="card-body">
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary>Why didn't my scheduled message send?<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>One of three things: the tab was closed before the scheduled time, Chrome was fully quit (not just backgrounded), or your device was asleep or hibernating. Check History — failed items are marked with the reason.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Does this only work on Claude, ChatGPT, and Gemini?<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>No. It works on any webpage with a text input and a send button. Those three platforms have built-in defaults, but you can Teach the input and send elements on any other site the same way.</p>
+            </details>
+            <details class="faq-item">
+              <summary>The picker won't let me select the element I clicked.<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>The picker rejects overlays, modals, hidden elements, and known dev/UI portals — the floating label tells you why when it happens. Try clicking directly on the input box or button itself, not a container wrapping it.</p>
+            </details>
+            <details class="faq-item">
+              <summary>"No reset time detected on this page" — what does that mean?<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>Reset mode scans the page's visible text for a rate-limit phrase like "resets in 2 hours" or "until 8:40 PM." If that banner hasn't loaded yet, or the site's exact wording isn't recognized, nothing is found. Try again once the banner is visible, or use Delay/At time instead.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Chain mode isn't firing after the response finishes.<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>Chain watches for the platform's "stop generating" control to disappear. If the tab is closed, backgrounded incorrectly, or a site redesign changed its DOM, detection can miss. Report it (below) with the site's URL so the adapter can be patched.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Is my data sent anywhere?<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>No — the extension code makes no network requests. Everything lives in <code>chrome.storage.local</code>, optionally synced via <code>chrome.storage.sync</code> (that's your Google account, not a server of ours). Full detail on the <a href="privacy-policy.html">Privacy page</a>.</p>
+            </details>
+            <details class="faq-item">
+              <summary>How do I wipe everything and start over?<svg class="i faq-chevron"><use href="#i-chevron-down"/></svg></summary>
+              <p>Options page → Maintenance section → Wipe local data / Clear synced selectors. Uninstalling the extension also removes all stored data.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <h2>Still stuck?</h2>
+          </div>
+          <p class="card-sub">Found a bug, or something not covered above? Both routes reach the same person.</p>
+        </div>
+        <div class="card-body">
+          <div class="contact-links">
+            <a class="contact-link" href="https://github.com/mohiddin7/ai-message-sender/issues" target="_blank" rel="noopener">
+              <svg class="i"><use href="#i-external"/></svg>
+              <span>Report an issue on GitHub</span>
+            </a>
+            <a class="contact-link" href="mailto:support@warmhop.com">
+              <svg class="i"><use href="#i-mail"/></svg>
+              <span>support@warmhop.com</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <div class="footer-links">
+        <a class="footer-link" href="https://github.com/mohiddin7/ai-message-sender" target="_blank" rel="noopener">
+          <svg class="i"><use href="#i-external"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="footer-link" href="mailto:support@warmhop.com">
+          <svg class="i"><use href="#i-mail"/></svg>
+          <span>support@warmhop.com</span>
+        </a>
+      </div>
+      <div class="footer-copyright">&copy; 2026 AI Message Sender</div>
+    </footer>
+  </div>
+
+  <script type="module" src="help.js"></script>
+</body>
+</html>

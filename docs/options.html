@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AI Message Sender — History</title>
+  <link rel="stylesheet" href="ui-tokens.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div id="sprite-host"></div>
+
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg class="i i-lg"><use href="#i-logo"/></svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">AI Message Sender</div>
+            <div class="brand-sub">History &amp; settings</div>
+          </div>
+        </div>
+        <nav class="page-nav" aria-label="Site">
+          <a class="page-nav-link" href="welcome.html">Home</a>
+          <a class="page-nav-link is-current" href="options.html" aria-current="page">History</a>
+          <a class="page-nav-link" href="help.html">Help</a>
+          <a class="page-nav-link" href="privacy-policy.html">Privacy</a>
+          <a class="page-nav-link" href="https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" target="_blank" rel="noopener">Coffee</a>
+          <button id="nav-tour-header" class="page-nav-link" type="button">Tour</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero">
+        <h1 class="page-title">History</h1>
+        <p class="page-subtitle">Every message you've sent or attempted in the last 30 days. Click an item to see the full prompt and timing.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-repeat"/></svg>
+            <h2>Recurring rules</h2>
+          </div>
+          <p class="card-sub">Re-queue a prompt on a schedule. Disable a rule to stop future sends without deleting the rule itself.</p>
+        </div>
+        <div id="recurring-list" class="card-body"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-book"/></svg>
+            <h2>Sent &amp; attempted</h2>
+          </div>
+          <p class="card-sub">The last 200 sends. Status pills tell you what happened. Click <em>View full prompt</em> for the uncut text.</p>
+        </div>
+        <div id="history" class="card-body list-body"></div>
+      </section>
+
+      <details class="card maintenance-card">
+        <summary class="card-summary">
+          <svg class="i"><use href="#i-wand"/></svg>
+          <span>Maintenance</span>
+          <svg class="i chev"><use href="#i-chevron-down"/></svg>
+        </summary>
+        <div class="card-body maintenance-body">
+          <div id="sync-banner" class="sync-pill" hidden>
+            <svg class="i"><use href="#i-check"/></svg>
+            <span>Selectors synced</span>
+            <button id="wipe-sync" type="button" class="sync-pill-action" aria-label="Wipe synced selectors">Wipe</button>
+          </div>
+          <button id="dryrun-all" class="btn btn-ghost" type="button">
+            <svg class="i"><use href="#i-play"/></svg>
+            <span>Run dry-run on all pending</span>
+          </button>
+          <button id="clear-all" class="btn btn-danger" type="button">
+            <svg class="i"><use href="#i-trash"/></svg>
+            <span>Clear all data</span>
+          </button>
+        </div>
+      </details>
+    </main>
+
+    <footer class="page-footer">
+      <a id="welcome" href="#" class="footer-link">
+        <svg class="i"><use href="#i-house"/></svg>
+        <span>Welcome</span>
+      </a>
+      <a id="help-link" href="help.html" class="footer-link">
+        <svg class="i"><use href="#i-help"/></svg>
+        <span>Help</span>
+      </a>
+      <a id="coffee" href="#" class="footer-link footer-coffee" aria-label="Buy me a coffee to support the developer">
+        <svg class="i"><use href="#i-coffee"/></svg>
+        <span>Buy me a coffee</span>
+      </a>
+    </footer>
+  </div>
+
+  <div id="modal-root"></div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
