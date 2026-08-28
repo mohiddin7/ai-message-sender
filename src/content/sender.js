@@ -29,6 +29,11 @@ export function findSendButton(root, selectors, platform) {
   return { ok: false, step: "findButton", reason: "no send button" };
 }
 
+function readFieldText(el) {
+  if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") return el.value;
+  return el.textContent || "";
+}
+
 export function writeText(el, text) {
   try {
     el.focus();
@@ -104,10 +109,20 @@ export async function dryRunSend(args) {
   const steps = [];
   const input = findInput(root, selectors, platform); steps.push(input);
   if (!input.ok) return { steps };
+  // writeText() on a contenteditable field inserts at the cursor rather
+  // than replacing — deliberate, so a real send appends onto text the
+  // user already started typing instead of clobbering it. A dry run isn't
+  // a real send though: it's supposed to be non-destructive. Without
+  // restoring the field afterward, its write is a permanent side effect —
+  // if the same item later really sends, that second writeText() appends
+  // onto this dry run's leftover text and the message goes out doubled.
+  const original = readFieldText(input.el);
   const written = writeText(input.el, text); steps.push(written);
   if (!written.ok) return { steps };
   await new Promise(r => setTimeout(r, 600));
   const button = findSendButton(root, selectors, platform); steps.push(button);
   // Intentionally do NOT call clickSend
+  clearField(input.el); // writeText(el, "") wouldn't clear it — nothing's selected to delete
+  if (original) writeText(input.el, original); // put back what was really there
   return { steps };
 }
