@@ -81,14 +81,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     check();
   });
 
-  // Nav links
-  const openHistory = e => { e.preventDefault(); chrome.runtime.openOptionsPage(); };
-  document.getElementById("nav-history").addEventListener("click", openHistory);
-  document.getElementById("nav-history-foot").addEventListener("click", openHistory);
-  document.getElementById("nav-coffee")  .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
-  document.getElementById("coffee")      .addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
-  document.getElementById("nav-popup-tour").addEventListener("click", e => {
-    e.preventDefault();
-    chrome.tabs.create({ url: chrome.runtime.getURL("popup.html?tour=tutorial") });
+  // Nav links (nav-hub card versions — the header/footer nav are plain
+  // <a href> links now, no JS needed for those).
+  document.getElementById("nav-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
+  document.getElementById("nav-coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
+
+  // "Show popup tour" used to open popup.html as a plain tab
+  // (chrome.tabs.create), which rendered the popup's markup as a full
+  // webpage — not the real small extension popup, and with no actual AI
+  // tab behind it for the teach-input/teach-send steps to target.
+  // chrome.action.openPopup() (Chrome 127+) opens the genuine popup for
+  // whichever tab is currently active/focused, so: open a real ChatGPT
+  // tab, focus its window, then open the real popup on it. There's no way
+  // to pass a query param through openPopup(), so a storage flag tells
+  // popup.js to auto-launch the tour on this specific open (see popup.js).
+  document.getElementById("nav-tour-header").addEventListener("click", async () => {
+    const { settings = {} } = await chrome.storage.local.get("settings");
+    await chrome.storage.local.set({ settings: { ...settings, pendingTourLaunch: true } });
+    const tab = await chrome.tabs.create({ url: "https://chatgpt.com/", active: true });
+    if (tab.windowId != null) await chrome.windows.update(tab.windowId, { focused: true });
+    try {
+      await chrome.action.openPopup();
+    } catch (_) {
+      // Chrome <127 (below this extension's minimum, but degrade rather
+      // than silently do nothing if it somehow gets here): fall back to
+      // the old tab-based approximation.
+      chrome.tabs.create({ url: chrome.runtime.getURL("popup.html") });
+    }
   });
 });

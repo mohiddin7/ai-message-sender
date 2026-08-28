@@ -128,14 +128,6 @@ async function triggerPicker(type) {
 }
 
 (async () => {
-  const tourMode = new URLSearchParams(location.search).get("tour") === "tutorial";
-  if (tourMode) {
-    // Tab-opened tour: there's no AI tab in this context. Mount the tutorial
-    // overlay over the popup DOM anyway — the targets (segmented control,
-    // picker row, etc.) are present in the popup markup.
-    setTimeout(() => startTutorial({ force: true }), 400);
-    return;
-  }
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tab;
   currentPlatform = detectPlatformFromUrl(tab.url);
@@ -159,12 +151,16 @@ async function triggerPicker(type) {
   } catch (_) { /* tab is sandboxed, no content script, or page is gone */ }
   renderQueueList(document.getElementById("queue-list"));
 
-  // Auto-fire the tutorial on first run (no settings.tutorialSeen flag yet).
-  // Welcome's wizard covers the "what is this" question; the popup tutorial
-  // covers the "how do I use these buttons" question. Users on a known
-  // platform are ready to use the buttons; fire the tour.
+  // Auto-fire the tutorial on first run (no settings.tutorialSeen flag yet),
+  // or if welcome.html's "Show popup tour" just opened this popup via
+  // chrome.action.openPopup() and set this flag — see welcome.js. There's
+  // no way to pass a query param through openPopup(), so a storage flag is
+  // the signal instead of the URL. Consumed once, then cleared.
   const { settings = {} } = await chrome.storage.local.get("settings");
-  if (!settings.tutorialSeen) {
+  if (settings.pendingTourLaunch) {
+    await chrome.storage.local.set({ settings: { ...settings, pendingTourLaunch: false } });
+    setTimeout(() => startTutorial({ force: true }), 400);
+  } else if (!settings.tutorialSeen) {
     setTimeout(() => startTutorial({ force: true }), 400);
   }
 })();
