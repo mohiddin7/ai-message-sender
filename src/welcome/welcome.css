@@ -132,6 +132,70 @@ body {
 .card-body {
   padding: var(--space-4) var(--space-5);
 }
+.card.is-warn .card-head { background: var(--warn-soft); }
+.card.is-warn .card-title .i { color: var(--warn-fg); }
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--fg);
+  line-height: var(--leading-relaxed);
+}
+.list li .i {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--warn-fg);
+  margin-top: 2px;
+  stroke-width: 2;
+}
+
+/* ---- How it works (numbered, non-interactive reference) ---- */
+.howto-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.howto-step {
+  display: flex;
+  gap: var(--space-3);
+}
+.howto-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  display: grid;
+  place-items: center;
+}
+.howto-body h3 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--fg);
+  margin-bottom: 2px;
+}
+.howto-body p {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  line-height: var(--leading-relaxed);
+}
 
 /* ---- Wizard steps ---- */
 .wizard-steps {

@@ -101,6 +101,55 @@
         </div>
       </section>
 
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-list"/></svg>
+            <h2>How it works</h2>
+          </div>
+          <p class="card-sub">The short version, always here even after you've finished the tour above.</p>
+        </div>
+        <div class="card-body">
+          <ol class="howto-steps">
+            <li class="howto-step">
+              <div class="howto-num">1</div>
+              <div class="howto-body">
+                <h3>Teach the input and send button</h3>
+                <p>Open any page with a text box and a send button — an AI chat site or any other webpage. Click the extension icon, "Teach input," then click the box. Same for "Teach send."</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">2</div>
+              <div class="howto-body">
+                <h3>Write a prompt and pick when</h3>
+                <p>Type your message, then choose Delay (a relative offset), At time (an exact date/time), Chain (right after the current response finishes), or Reset (when this page's rate limit clears).</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">3</div>
+              <div class="howto-body">
+                <h3>Queue it</h3>
+                <p>Click "Queue prompt." The item shows up in the Queue list — you can dry-run it (see each step it would take, without actually sending) or cancel it any time before it fires.</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">4</div>
+              <div class="howto-body">
+                <h3>Keep the tab open</h3>
+                <p>At the scheduled moment, the extension focuses the tab, types your message in, and clicks send — as long as that tab and Chrome are still open. See Limitations below for the exact constraints.</p>
+              </div>
+            </li>
+            <li class="howto-step">
+              <div class="howto-num">5</div>
+              <div class="howto-body">
+                <h3>Check History</h3>
+                <p>Every send — successful or failed — is logged for 30 days with the full prompt text, so you can confirm it went out or see why it didn't.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
       <section id="nav-hub" class="card">
         <div class="card-head">
           <div class="card-title">
@@ -132,6 +181,14 @@
               <div class="nav-card-body">
                 <div class="nav-card-title">Privacy</div>
                 <div class="nav-card-desc">What this extension stores, and what it doesn't.</div>
+              </div>
+              <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a id="nav-help" class="nav-card" href="help.html">
+              <div class="nav-card-icon"><svg class="i"><use href="#i-help"/></svg></div>
+              <div class="nav-card-body">
+                <div class="nav-card-title">Help &amp; support</div>
+                <div class="nav-card-desc">Features, limitations, FAQ, and how to reach me.</div>
               </div>
               <svg class="i nav-card-arrow"><use href="#i-chevron-right"/></svg>
             </a>
@@ -183,9 +240,27 @@
                 <span class="mode-icon"><svg class="i"><use href="#i-rotate"/></svg></span>
                 <span>Reset</span>
               </dt>
-              <dd>Scans the page for a "resets in 2 hours" notice and schedules the message for that moment.</dd>
+              <dd>Scans the page for a rate-limit notice — "resets in 2 hours" or "until 8:40 PM" style — and schedules the message for that moment.</dd>
             </div>
           </dl>
+        </div>
+      </section>
+
+      <section class="card is-warn">
+        <div class="card-head">
+          <div class="card-title">
+            <svg class="i"><use href="#i-alert"/></svg>
+            <h2>Limitations</h2>
+          </div>
+          <p class="card-sub">Scheduled sends depend on your browser, not a server — a few real constraints follow from that.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>The tab you scheduled a message in must stay open. Closing it cancels that send — you'll see it marked "tab lost" in History.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Chrome itself must be running. If you fully quit Chrome, queued sends fire late once you reopen it, not retroactively at the original time.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Your device just needs to be awake — a locked screen is fine, sleep or hibernate is not.</span></li>
+            <li><svg class="i"><use href="#i-alert"/></svg> <span>Works on any webpage with a text input and a send button — not limited to Claude, ChatGPT, or Gemini.</span></li>
+          </ul>
         </div>
       </section>
     </main>
