@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  width: 1400px; height: 560px; overflow: hidden;
+  font-family: "Inter", ui-sans-serif, -apple-system, system-ui, sans-serif;
+  background: radial-gradient(1000px 560px at 80% 50%, #ede9fe 0%, #fafafa 55%, #fafafa 100%);
+  display: flex; align-items: center;
+  padding-left: 100px;
+}
+.brand-row { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.brand-mark {
+  width: 48px; height: 48px; border-radius: 12px; background: #7c3aed;
+  display: grid; place-items: center; box-shadow: 0 6px 14px rgba(124,58,237,.28);
+}
+.brand-name { font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
+h1 {
+  font-size: 52px; line-height: 1.1; font-weight: 700; letter-spacing: -0.03em;
+  color: #0f172a; margin: 0 0 22px; max-width: 15ch;
+}
+h1 span { color: #7c3aed; }
+p.lede { font-size: 20px; line-height: 1.5; color: #475569; margin: 0; max-width: 44ch; }
+</style></head>
+<body>
+  <div>
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M20.5 3.5 3 11l9 10.5-2-9Z"/><path d="M20.5 3.5 10 12.5l2 9Z" fill-opacity="0.55"/></svg>
+      </div>
+      <div class="brand-name">AI Message Sender</div>
+    </div>
+    <h1>Schedule any prompt to <span>any AI chat.</span></h1>
+    <p class="lede">Delay it, chain it, repeat it — on ChatGPT, Claude, Gemini, or any site with a text box and a send button.</p>
+  </div>
+</body></html>

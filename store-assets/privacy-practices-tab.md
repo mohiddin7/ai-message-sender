@@ -46,8 +46,12 @@ Broad host access is required so a user can point the picker at any site
 they choose and schedule sends there too.
 
 ## Remote code
-No. All JavaScript ships inside the packaged extension; nothing is
-fetched or eval'd from a remote source at runtime.
+Select **No** on the "Are you using remote code?" toggle. If the
+dashboard still wants a text justification for that field, use:
+"No remote code is used — all JavaScript is bundled inside the packaged
+extension." (This field showed up as a required item in the "Unable to
+publish" checklist even with No selected — fill it in if the checklist
+still flags it after selecting No.)
 
 ## Data usage disclosure
 What's actually stored (all locally, via `chrome.storage.local`, optionally
@@ -65,6 +69,10 @@ Certification checkboxes — all three are true and should be checked:
 - [x] I do not use or transfer user data to determine creditworthiness or for lending purposes.
 
 ## Privacy policy URL
-Paste the public URL here (the Claude Artifact link for now, or the
-GitHub Pages URL once the public mirror is live — either is a real
-https:// URL, which is the only requirement).
+https://claude.ai/code/artifact/484f21fb-c71d-4ccd-abeb-3a5b9c0c24cf
+(confirmed public — swap for the GitHub Pages URL once the public mirror
+is live, same content either way)
+
+## Publisher contact email
+Separate, account-level step — Settings page → verify contact email.
+Nothing to paste here; just complete Google's verification flow.
