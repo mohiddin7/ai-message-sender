@@ -18,6 +18,7 @@
     <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17v11h-17z"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
     <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/><path d="M15 4h5v5"/><path d="M20 4 11 13"/></symbol>
     <symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
     <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
   </svg>
 
@@ -33,6 +34,11 @@
             <div class="brand-sub">Help &amp; support</div>
           </div>
         </div>
+        <nav class="page-nav" aria-label="Site">
+          <a class="page-nav-link" href="welcome.html">Welcome</a>
+          <a class="page-nav-link is-current" href="help.html" aria-current="page">Help</a>
+          <a class="page-nav-link" href="privacy-policy.html">Privacy</a>
+        </nav>
       </div>
     </header>
 
@@ -148,10 +154,25 @@
     </main>
 
     <footer class="page-footer">
-      <a id="help-link-back" class="footer-link" href="welcome.html">
-        <svg class="i"><use href="#i-house"/></svg>
-        <span>Welcome</span>
-      </a>
+      <div class="footer-links">
+        <a id="help-link-back" class="footer-link" href="welcome.html">
+          <svg class="i"><use href="#i-house"/></svg>
+          <span>Welcome</span>
+        </a>
+        <a class="footer-link" href="privacy-policy.html">
+          <svg class="i"><use href="#i-shield"/></svg>
+          <span>Privacy</span>
+        </a>
+        <a class="footer-link" href="https://github.com/mohiddin7/ai-message-sender" target="_blank" rel="noopener">
+          <svg class="i"><use href="#i-external"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="footer-link" href="mailto:support@warmhop.com">
+          <svg class="i"><use href="#i-mail"/></svg>
+          <span>support@warmhop.com</span>
+        </a>
+      </div>
+      <div class="footer-copyright">&copy; 2026 AI Auto-Sender</div>
     </footer>
   </div>
 </body>
