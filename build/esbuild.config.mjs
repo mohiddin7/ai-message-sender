@@ -35,6 +35,11 @@ await copyFile("privacy.css", "dist/privacy.css");
 await copyFile("help.html", "dist/help.html");
 await copyFile("help.css", "dist/help.css");
 
+// Copy the standalone thank-you page (post-donation, not linked from
+// Stripe — see thank-you.css header comment)
+await copyFile("thank-you.html", "dist/thank-you.html");
+await copyFile("thank-you.css", "dist/thank-you.css");
+
 // Generate a dist/manifest.json with paths rewritten relative to dist/
 // The source manifest.json references paths like "dist/background.js" and
 // "icons/16.png" relative to the project root. When loaded as an unpacked
