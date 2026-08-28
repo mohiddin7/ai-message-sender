@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "AI Auto-Sender",
+  "name": "AI Message Sender",
   "version": "5.1.0",
-  "description": "Schedule prompts to any AI chat site (Claude, ChatGPT, Gemini, and beyond) with multi-queue, multi-tab, dry-run, and recurring schedules.",
-  "minimum_chrome_version": "120",
+  "description": "Schedule, chain, and repeat prompts on any webpage with a text input and a send button — Claude, ChatGPT, Gemini, or any other site — with multi-queue, multi-tab, dry-run, and recurring schedules.",
+  "minimum_chrome_version": "127",
   "permissions": ["alarms", "storage", "tabs", "windows", "scripting"],
   "host_permissions": ["<all_urls>"],
   "content_security_policy": {

@@ -1,4 +1,4 @@
-# AI Auto-Sender
+# AI Message Sender
 
 Schedule text prompts to Claude, ChatGPT, and Gemini — with multi-queue, multi-tab, dry-run, recurring schedules, and selector sync.
 
