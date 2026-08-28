@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AI Message Sender",
   "version": "5.1.0",
-  "description": "Schedule, chain, and repeat prompts on any webpage with a text input and a send button — Claude, ChatGPT, Gemini, or any other site — with multi-queue, multi-tab, dry-run, and recurring schedules.",
+  "description": "Schedule, chain, and repeat prompts on ChatGPT, Claude, Gemini, or any webpage with a text input and a send button.",
   "minimum_chrome_version": "127",
   "permissions": ["alarms", "storage", "tabs", "windows", "scripting"],
   "host_permissions": ["<all_urls>"],
