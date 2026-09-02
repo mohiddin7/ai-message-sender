@@ -6,6 +6,7 @@ dist/
 .vscode/
 coverage/
 .superpowers/
+secrets/
 
 # Local secrets — never commit
 .env
