@@ -30,7 +30,7 @@ async function renderRecurring() {
     ? `<div class="empty-state">
          <svg class="i" width="32" height="32"><use href="#i-repeat"/></svg>
          <div>No recurring rules yet.</div>
-         <div style="font-size: var(--text-xs); margin-top: 4px; color: var(--fg-subtle);">Add one from the popup's "Make this recurring" panel.</div>
+         <div class="empty-state-hint">Add one from the popup's "Make this recurring" panel.</div>
        </div>`
     : recurring.map(r => {
         const sched = r.schedule.kind === "daily"
@@ -109,7 +109,7 @@ async function renderHistory() {
     root.innerHTML = `<div class="empty-state">
        <svg class="i" width="32" height="32"><use href="#i-book"/></svg>
        <div>No history yet.</div>
-       <div style="font-size: var(--text-xs); margin-top: 4px; color: var(--fg-subtle);">Send a prompt from the popup to see it here.</div>
+       <div class="empty-state-hint">Send a prompt from the popup to see it here.</div>
      </div>`;
     return;
   }
@@ -138,13 +138,30 @@ document.getElementById("wipe-sync").addEventListener("click", async () => {
   location.reload();
 });
 
-document.getElementById("coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
-document.getElementById("welcome").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") }); });
 document.getElementById("nav-tour-header")?.addEventListener("click", launchTour);
 
 (async () => {
   const host = document.getElementById("sprite-host");
   if (host) host.innerHTML = SPRITE_HTML;
+
+  // Fill the version slot in the footer from the running extension's manifest
+  // (this page is loaded as the extension's options page, not from the web,
+  // so chrome.runtime.getManifest is always available here).
+  const ver = document.getElementById("footer-version");
+  if (ver) ver.textContent = `v${chrome.runtime.getManifest().version}`;
+
+  // Deep link from help.html: "options.html#maintenance" should open the
+  // Maintenance <details> and scroll it into view. Use a one-time hashchange
+  // listener too so opening the link from another tab also works.
+  const openMaintenance = () => {
+    if (location.hash !== "#maintenance") return;
+    const m = document.querySelector("details.maintenance-card");
+    if (!m) return;
+    m.open = true;
+    requestAnimationFrame(() => m.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+  openMaintenance();
+  window.addEventListener("hashchange", openMaintenance);
 
   const hydrated = await syncStore.hydrateFromSync();
   if (hydrated.hydrated) document.getElementById("sync-banner").hidden = false;

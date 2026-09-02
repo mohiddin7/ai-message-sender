@@ -253,38 +253,4 @@ body {
 }
 .contact-link .i { color: var(--brand); }
 
-.page-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-6) 0;
-  border-top: 1px solid var(--line);
-  margin-top: var(--space-6);
-}
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-1);
-}
-.footer-copyright {
-  font-size: var(--text-xs);
-  color: var(--fg-subtle);
-}
-.footer-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--fg-muted);
-  border-radius: var(--radius-md);
-  transition: all var(--duration-fast) var(--ease-out);
-  text-decoration: none;
-}
-.footer-link:hover {
-  color: var(--fg);
-  background: var(--surface-2);
-}
+/* The unified .page-footer grid layout lives in ui-tokens.css. */

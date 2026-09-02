@@ -1,98 +1,13 @@
-// welcome.js — first-run wizard + persistent navigation hub.
-// The wizard is shown only if the user hasn't completed onboarding yet
-// (settings.onboarded !== true). The nav-hub is always visible.
+// welcome.js — inject the SVG sprite (so the remaining cards' icons render)
+// and wire the header Tour button. The Quick-start wizard and the
+// "Everything you can do" nav-hub were removed; the header nav covers
+// both jobs now.
 
 import { SPRITE_HTML } from "./sprite.js";
-import { detectPlatformFromUrl } from "../lib/platform.js";
 import { launchTour } from "../lib/tour-launch.js";
 
-const items = [...document.querySelectorAll("#steps .wizard-step")];
-const wizard = document.getElementById("wizard");
-const restartBtn = document.getElementById("restart-tour");
-const navHub = document.getElementById("nav-hub");
-
-async function check() {
-  const all = await chrome.storage.local.get(["selectors", "queue", "history", "settings"]);
-  // The "teach the input box / send button" steps only make sense for the
-  // platform the user is currently on. Look up that platform via the active
-  // tab; if there's no active tab (welcome tab is focused, e.g. after install)
-  // or no detected platform, fall back to false so the step stays disabled.
-  let currentPlatform = null;
-  try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab && tab.url) {
-      currentPlatform = detectPlatformFromUrl(tab.url);
-    }
-  } catch (_) { /* no active tab, stay null */ }
-  for (const li of items) {
-    const v = li.dataset.verify;
-    if (!v) continue;
-    let ok = false;
-    if (v.startsWith("selectors.")) {
-      // Verify string just names the data source; the field is "input" or
-      // "sendButton" (the last dotted segment). Look it up on the active
-      // platform only, not any platform.
-      const key = v.split(".").pop();
-      const entry = currentPlatform ? (all.selectors || {})[currentPlatform] : null;
-      ok = !!(entry && entry[key]);
-    } else if (v === "queue.len>=1") {
-      ok = (all.queue || []).length >= 1;
-    } else if (v === "history.dryRunOk") {
-      ok = (all.history || []).some(h => h.status === "dry-run-ok");
-    }
-    const btn = li.querySelector("[data-next]");
-    if (btn) btn.disabled = !ok;
-  }
-}
-
-function showHubOnly() {
-  wizard.hidden = true;
-  restartBtn.hidden = false;
-}
-
-function showWizard() {
-  wizard.hidden = false;
-  restartBtn.hidden = true;
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const host = document.getElementById("sprite-host");
   if (host) host.innerHTML = SPRITE_HTML;
-
-  const { settings = {} } = await chrome.storage.local.get("settings");
-  if (settings.onboarded) showHubOnly();
-
-  check();
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local") check();
-  });
-  items.forEach(li => li.querySelector("[data-next]")?.addEventListener("click", () => {
-    li.hidden = true;
-  }));
-  document.getElementById("done").addEventListener("click", async () => {
-    const { settings = {} } = await chrome.storage.local.get("settings");
-    await chrome.storage.local.set({ settings: { ...settings, onboarded: true } });
-    showHubOnly();
-  });
-  restartBtn.addEventListener("click", async () => {
-    const { settings = {} } = await chrome.storage.local.get("settings");
-    await chrome.storage.local.set({ settings: { ...settings, onboarded: false } });
-    items.forEach(li => { li.hidden = false; });
-    showWizard();
-    check();
-  });
-
-  // Nav links (nav-hub card versions — the header/footer nav are plain
-  // <a href> links now, no JS needed for those).
-  document.getElementById("nav-history").addEventListener("click", e => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
-  document.getElementById("nav-coffee").addEventListener("click", e => { e.preventDefault(); chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" }); });
-
-  // "Show popup tour" used to open popup.html as a plain tab
-  // (chrome.tabs.create), which rendered the popup's markup as a full
-  // webpage — not the real small extension popup, and with no actual AI
-  // tab behind it for the teach-input/teach-send steps to target.
-  // launchTour() (shared with every other page's header — see
-  // src/lib/tour-launch.js) opens a real ChatGPT tab, waits for it to
-  // finish loading, then opens the genuine extension popup on it.
-  document.getElementById("nav-tour-header").addEventListener("click", launchTour);
+  document.getElementById("nav-tour-header")?.addEventListener("click", launchTour);
 });
