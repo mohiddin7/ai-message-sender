@@ -247,6 +247,7 @@ body {
   font-size: var(--text-sm);
 }
 .empty-state .i { display: block; margin: 0 auto var(--space-2); color: var(--fg-subtle); }
+.empty-state-hint { font-size: var(--text-xs); margin-top: 4px; color: var(--fg-subtle); }
 
 /* ---- Buttons (shared) ---- */
 .btn {
@@ -407,33 +408,9 @@ body {
   flex-wrap: wrap;
   padding: var(--space-4) var(--space-5);
 }
-
 /* ---- Footer ---- */
-.page-footer {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-1);
-  padding: var(--space-6) 0;
-  border-top: 1px solid var(--line);
-  margin-top: var(--space-6);
-}
-.footer-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--fg-muted);
-  border-radius: var(--radius-md);
-  transition: all var(--duration-fast) var(--ease-out);
-}
-.footer-link:hover {
-  color: var(--fg);
-  background: var(--surface-2);
-}
-.footer-coffee { color: var(--coffee); }
-.footer-coffee:hover { color: var(--coffee); background: var(--coffee-soft); }
+/* The unified .page-footer grid layout lives in ui-tokens.css so all four
+   pages share one set of rules. No page-specific overrides here. */
 
 /* ---- Modal ---- */
 .modal-overlay {

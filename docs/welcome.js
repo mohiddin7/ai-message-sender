@@ -118,30 +118,6 @@ var ui_icons_default = `<!-- AI Message Sender \u2014 shared SVG icon sprite.
 // src/welcome/sprite.js
 var SPRITE_HTML = ui_icons_default;
 
-// src/lib/platform.js
-var PLATFORMS = Object.freeze({ CLAUDE: "claude", GPT: "gpt", GEMINI: "gemini" });
-var UNSUPPORTED_PREFIXES = [
-  "chrome://",
-  "about:",
-  "chrome-extension://",
-  "file://",
-  "edge://",
-  "devtools://"
-];
-function detectPlatformFromUrl(url) {
-  if (!url) return null;
-  if (UNSUPPORTED_PREFIXES.some((p) => url.startsWith(p))) return null;
-  if (url.includes("claude.ai")) return "claude.ai";
-  if (url.includes("chatgpt.com") || url.includes("chat.openai.com")) return "chatgpt.com";
-  if (url.includes("gemini.google.com")) return "gemini.google.com";
-  try {
-    const h = new URL(url).hostname;
-    return h || null;
-  } catch {
-    return null;
-  }
-}
-
 // src/lib/tour-launch.js
 function waitForTabComplete(tabId, timeoutMs = 8e3) {
   return new Promise((resolve) => {
@@ -176,78 +152,8 @@ async function launchTour() {
 }
 
 // src/welcome/welcome.js
-var items = [...document.querySelectorAll("#steps .wizard-step")];
-var wizard = document.getElementById("wizard");
-var restartBtn = document.getElementById("restart-tour");
-var navHub = document.getElementById("nav-hub");
-async function check() {
-  const all = await chrome.storage.local.get(["selectors", "queue", "history", "settings"]);
-  let currentPlatform = null;
-  try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab && tab.url) {
-      currentPlatform = detectPlatformFromUrl(tab.url);
-    }
-  } catch (_) {
-  }
-  for (const li of items) {
-    const v = li.dataset.verify;
-    if (!v) continue;
-    let ok = false;
-    if (v.startsWith("selectors.")) {
-      const key = v.split(".").pop();
-      const entry = currentPlatform ? (all.selectors || {})[currentPlatform] : null;
-      ok = !!(entry && entry[key]);
-    } else if (v === "queue.len>=1") {
-      ok = (all.queue || []).length >= 1;
-    } else if (v === "history.dryRunOk") {
-      ok = (all.history || []).some((h) => h.status === "dry-run-ok");
-    }
-    const btn = li.querySelector("[data-next]");
-    if (btn) btn.disabled = !ok;
-  }
-}
-function showHubOnly() {
-  wizard.hidden = true;
-  restartBtn.hidden = false;
-}
-function showWizard() {
-  wizard.hidden = false;
-  restartBtn.hidden = true;
-}
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const host = document.getElementById("sprite-host");
   if (host) host.innerHTML = SPRITE_HTML;
-  const { settings = {} } = await chrome.storage.local.get("settings");
-  if (settings.onboarded) showHubOnly();
-  check();
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local") check();
-  });
-  items.forEach((li) => li.querySelector("[data-next]")?.addEventListener("click", () => {
-    li.hidden = true;
-  }));
-  document.getElementById("done").addEventListener("click", async () => {
-    const { settings: settings2 = {} } = await chrome.storage.local.get("settings");
-    await chrome.storage.local.set({ settings: { ...settings2, onboarded: true } });
-    showHubOnly();
-  });
-  restartBtn.addEventListener("click", async () => {
-    const { settings: settings2 = {} } = await chrome.storage.local.get("settings");
-    await chrome.storage.local.set({ settings: { ...settings2, onboarded: false } });
-    items.forEach((li) => {
-      li.hidden = false;
-    });
-    showWizard();
-    check();
-  });
-  document.getElementById("nav-history").addEventListener("click", (e) => {
-    e.preventDefault();
-    chrome.runtime.openOptionsPage();
-  });
-  document.getElementById("nav-coffee").addEventListener("click", (e) => {
-    e.preventDefault();
-    chrome.tabs.create({ url: "https://donate.stripe.com/28EbITdPK6pa0kv3gU3Ru00" });
-  });
-  document.getElementById("nav-tour-header").addEventListener("click", launchTour);
+  document.getElementById("nav-tour-header")?.addEventListener("click", launchTour);
 });
