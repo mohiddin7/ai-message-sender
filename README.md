@@ -58,8 +58,8 @@ The extension is published as **"Prompt or Message Scheduler for Claude, ChatGPT
 Requires **Node.js 20+**.
 
 ```bash
-git clone https://github.com/mohiddin7/ai-message-scheduler.git
-cd ai-message-scheduler
+git clone https://github.com/mohiddin7/ai-message-sender.git
+cd ai-message-sender
 npm install
 npm run build           # bundles src/ into dist/ via esbuild
 ```
